@@ -5,3 +5,64 @@ skills-lock.json
 docs/base/
 docs/documentation
 docs/plans
+
+# ==========================================
+# MONOREPO CLASSNEXUS: EXCLUSIONES COMPARTIDAS
+# ==========================================
+
+# macOS
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ==========================================
+# BACKEND (LARAVEL)
+# ==========================================
+/backend/vendor/
+/backend/node_modules/
+/backend/public/build/
+/backend/public/hot
+/backend/public/storage
+/backend/storage/*.key
+/backend/storage/framework/cache/data/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/testing/*
+/backend/storage/framework/views/*
+/backend/storage/logs/*
+/backend/.env
+/backend/.env.backup
+/backend/.env.production
+/backend/.phpunit.cache
+/backend/Homestead.json
+/backend/Homestead.yaml
+/backend/auth.json
+/backend/.php-cs-fixer.cache
+/backend/phpunit.xml
+
+# ==========================================
+# FRONTEND (FLUTTER)
+# ==========================================
+/frontend/.dart_tool/
+/frontend/.packages
+/frontend/build/
+/frontend/.fvm/
+/frontend/android/.gradle/
+/frontend/android/app/src/main/google-services.json
+/frontend/ios/Pods/
+/frontend/ios/.symlinks/
+/frontend/macos/Pods/
+/frontend/macos/Flutter/ephemeral/
+/frontend/windows/flutter/ephemeral/
+/frontend/linux/flutter/ephemeral/
+/frontend/coverage/
+/frontend/lib/generated_plugin_registrant.dart
+# Archivos de configuración locales
+/frontend/.env
+/frontend/lib/core/constants/env.dart
+/frontend/**/env.dart

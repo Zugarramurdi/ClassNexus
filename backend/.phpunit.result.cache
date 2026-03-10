@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"Tests\\Feature\\SupabaseAuthTest::test_should_deny_access_without_token":0.045,"Tests\\Feature\\SupabaseAuthTest::test_should_deny_access_with_invalid_token":0.003}}
