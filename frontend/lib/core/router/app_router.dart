@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/subjects/presentation/subjects_screen.dart';
+import '../../features/subjects/presentation/subject_detail_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -29,6 +31,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/subjects',
+        builder: (context, state) => const SubjectsScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            builder: (context, state) => SubjectDetailScreen(
+              subjectId: state.pathParameters['id']!,
+            ),
+          ),
+        ],
       ),
     ],
   );

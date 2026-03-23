@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../profile/providers/profile_provider.dart';
 
@@ -80,9 +81,18 @@ class DashboardScreen extends ConsumerWidget {
                 // Aquí irán las tarjetas dependiendo del rol
                 Row(
                   children: [
-                    _buildFeatureCard(Icons.school, 'Mis Asignaturas', Colors.purple),
+                    _buildFeatureCard(
+                      Icons.school, 
+                      'Mis Asignaturas', 
+                      Colors.purple,
+                      onTap: () => context.push('/subjects'),
+                    ),
                     const SizedBox(width: 16),
-                    _buildFeatureCard(Icons.calendar_month, 'Horario', Colors.orange),
+                    _buildFeatureCard(
+                      Icons.calendar_month, 
+                      'Horario', 
+                      Colors.orange,
+                    ),
                   ],
                 )
               ],
@@ -93,7 +103,7 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureCard(IconData icon, String title, Color color) {
+  Widget _buildFeatureCard(IconData icon, String title, Color color, {VoidCallback? onTap}) {
     return Expanded(
       child: Card(
         elevation: 0,
@@ -103,7 +113,7 @@ class DashboardScreen extends ConsumerWidget {
           side: BorderSide(color: color.withOpacity(0.2)),
         ),
         child: InkWell(
-          onTap: () {},
+          onTap: onTap ?? () {},
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(24.0),

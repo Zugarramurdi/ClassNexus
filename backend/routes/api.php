@@ -33,4 +33,7 @@ Route::middleware('supabase.auth')->group(function () {
     
     Route::get('/centers', [CenterController::class, 'index']);
     Route::get('/centers/{id}', [CenterController::class, 'show']);
+
+    // ENDPOINT TEMPORAL -> Sustituir por lógica de asignaturas propias del usuario post-UI
+    Route::get('/subjects', [App\Http\Controllers\Api\SubjectController::class, 'index']);
 });
