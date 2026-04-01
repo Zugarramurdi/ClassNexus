@@ -90,17 +90,21 @@ class _SubjectCard extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Ajustarse al contenido
             children: [
-              Icon(Icons.menu_book_rounded, size: 32, color: color.shade400),
-              const Spacer(),
-              Text(
-                subject.name,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Icon(Icons.menu_book_rounded, size: 28, color: color.shade400),
+              const SizedBox(height: 12),
+              Flexible(
+                child: Text(
+                  subject.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    height: 1.2,
+                  ),
                 ),
               ),
               const SizedBox(height: 4),
@@ -110,7 +114,7 @@ class _SubjectCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: Colors.grey.shade600,
                   ),
                 ),
