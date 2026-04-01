@@ -15,4 +15,14 @@ class Group extends Model
     {
         return $this->belongsTo(Center::class);
     }
+
+    public function profiles()
+    {
+        return $this->belongsToMany(Profile::class);
+    }
+
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class);
+    }
 }

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'core/constants/env.dart';
 import 'core/router/app_router.dart';
 
@@ -35,6 +37,15 @@ class ClassNexusApp extends ConsumerWidget {
         textTheme: GoogleFonts.interTextTheme(),
         useMaterial3: true,
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es', 'ES'),
+      ],
+      locale: const Locale('es', 'ES'),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

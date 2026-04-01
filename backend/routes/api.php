@@ -36,4 +36,17 @@ Route::middleware('supabase.auth')->group(function () {
 
     // ENDPOINT TEMPORAL -> Sustituir por lógica de asignaturas propias del usuario post-UI
     Route::get('/subjects', [App\Http\Controllers\Api\SubjectController::class, 'index']);
+
+    // Rutas para los Temarios (Topics) asociados a una Asignatura
+    Route::get('/subjects/{subject}/topics', [App\Http\Controllers\Api\TopicController::class, 'index']);
+    Route::post('/subjects/{subject}/topics', [App\Http\Controllers\Api\TopicController::class, 'store']);
+
+    // Tareas
+    Route::get('/subjects/{subject}/assignments', [\App\Http\Controllers\Api\AssignmentController::class, 'index']);
+    Route::post('/subjects/{subject}/assignments', [\App\Http\Controllers\Api\AssignmentController::class, 'store']);
+
+    // Entregas
+    Route::get('/assignments/{assignment}/submissions', [\App\Http\Controllers\Api\SubmissionController::class, 'index']);
+    Route::post('/assignments/{assignment}/submissions', [\App\Http\Controllers\Api\SubmissionController::class, 'store']);
+    Route::patch('/submissions/{submission}/grade', [\App\Http\Controllers\Api\SubmissionController::class, 'grade']);
 });

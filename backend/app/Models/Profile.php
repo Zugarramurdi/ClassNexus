@@ -11,6 +11,7 @@ class Profile extends Model
 
     protected $keyType = 'string';
     public $incrementing = false;
+    public $timestamps = false; // Agregado para compatibilidad con Supabase
     protected $primaryKey = 'id';
 
     protected $fillable = [
@@ -24,5 +25,20 @@ class Profile extends Model
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function teachingSubjects()
+    {
+        return $this->belongsToMany(Subject::class, 'profile_subject');
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(Submission::class, 'student_id');
     }
 }

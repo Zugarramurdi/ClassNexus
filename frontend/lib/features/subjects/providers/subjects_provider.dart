@@ -8,6 +8,7 @@ class SubjectData {
   final String? description;
   final int? centerId;
   final Map<String, dynamic>? center;
+  final List<dynamic>? teachers;
 
   SubjectData({
     required this.id,
@@ -15,6 +16,7 @@ class SubjectData {
     this.description,
     this.centerId,
     this.center,
+    this.teachers,
   });
 
   factory SubjectData.fromJson(Map<String, dynamic> json) {
@@ -24,6 +26,7 @@ class SubjectData {
       description: json['description'],
       centerId: json['center_id'],
       center: json['center'] as Map<String, dynamic>?,
+      teachers: json['teachers'] as List<dynamic>?,
     );
   }
 }

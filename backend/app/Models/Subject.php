@@ -15,4 +15,24 @@ class Subject extends Model
     {
         return $this->belongsTo(Center::class);
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function teachers()
+    {
+        return $this->belongsToMany(Profile::class, 'profile_subject');
+    }
+
+    public function topics()
+    {
+        return $this->hasMany(Topic::class);
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(Assignment::class);
+    }
 }
