@@ -46,6 +46,8 @@ class SupabaseJwtMiddleware
             $keys = \Firebase\JWT\JWK::parseKeySet($jwks);
 
             // Decode token (Automáticamente comprobará la firma ES256 o RS256 contra la clave pública)
+            // Añadimos un margen de 60 segundos para evitar errores de sincronización de reloj (clock drift)
+            JWT::$leeway = 60;
             $decoded = JWT::decode($token, $keys);
 
             // Store the authenticated user's ID in the request

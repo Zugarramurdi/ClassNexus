@@ -5,6 +5,9 @@ skills-lock.json
 docs/base/
 docs/documentation
 docs/plans
+task.md
+.antigravity/
+.atl/
 
 # ==========================================
 # MONOREPO CLASSNEXUS: EXCLUSIONES COMPARTIDAS
