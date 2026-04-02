@@ -65,3 +65,18 @@ app.*.map.json
 *.moved-aside
 *.pin
 *.xcuserstate
+
+# macOS related
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Generated.xcconfig
+**/macos/Flutter/flutter_export_environment.sh
+**/macos/Pods/
+**/macos/.generated/
+**/macos/DerivedData/
+
+# Linux related
+**/linux/flutter/ephemeral/
+**/linux/**/generated_main_control.h
+**/linux/**/generated_plugin_registrant.h
+**/linux/**/generated_plugin_registrant.cc
+**/linux/**/generated_plugins.cmake
