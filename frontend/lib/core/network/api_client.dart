@@ -8,7 +8,7 @@ final dioProvider = Provider<Dio>((ref) {
   // Debemos usar 10.0.2.2 para acceder al host (tu PC).
   final String baseUrl = (defaultTargetPlatform == TargetPlatform.android)
       ? 'http://10.0.2.2:8000/api'
-      : 'http://localhost:8000/api';
+      : 'http://127.0.0.1:8000/api';
 
   final dio = Dio(BaseOptions(
     baseUrl: baseUrl,
