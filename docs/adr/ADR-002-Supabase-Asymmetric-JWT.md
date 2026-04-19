@@ -31,3 +31,10 @@ Se ha decidido implementar un Middleware Dinámico (`SupabaseJwtMiddleware.php`)
 ## Notas de Implementación
 - Se ha actualizado `api_client.dart` en Flutter para inyectar automáticamente el Bearer proporcionado por `supabase_flutter`.
 - La solución aprovecha `firebase/php-jwt` v6+, preinstalado anteriormente en la aplicación.
+
+## ## Para Stakeholders (Contexto TFG)
+> [!IMPORTANT]
+> Este cambio no fue estético, sino de cumplimiento normativo y seguridad de datos de los alumnos. 
+> - **Impacto**: Aseguramos que ClassNexus use estándares de seguridad de "Próxima Generación" (OIDC/JWKS), los mismos que usan empresas como Google o Microsoft.
+> - **Justificación Académica**: Demuestra la capacidad de adaptación ante cambios imprevistos en APIs externas (Supabase) y la resolución de problemas técnicos complejos en entornos de producción.
+
