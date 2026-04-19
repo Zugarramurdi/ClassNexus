@@ -10,7 +10,8 @@ nixPkgs = [
   "php83Extensions.ctype",
   "php83Extensions.bcmath",
   "php83Extensions.fileinfo",
-  "php83Extensions.openssl"
+  "php83Extensions.openssl",
+  "nodejs_20"
 ]
 
 [start]
