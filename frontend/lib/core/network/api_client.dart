@@ -1,14 +1,10 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import '../constants/env.dart';
 
 final dioProvider = Provider<Dio>((ref) {
-  // En Android Emulator, localhost (127.0.0.1) apunta al propio emulador.
-  // Debemos usar 10.0.2.2 para acceder al host (tu PC).
-  final String baseUrl = (defaultTargetPlatform == TargetPlatform.android)
-      ? 'http://10.0.2.2:8000/api'
-      : 'http://127.0.0.1:8000/api';
+  const String baseUrl = Env.apiBaseUrl;
 
   final dio = Dio(BaseOptions(
     baseUrl: baseUrl,
