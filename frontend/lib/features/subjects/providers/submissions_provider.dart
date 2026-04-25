@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/api_client.dart';
-import '../models/submission_data.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/features/subjects/models/submission_data.dart';
 
 // Provider para listar las entregas de una Tarea (normalmente para el profesor)
 final submissionsProvider = FutureProvider.family<List<SubmissionData>, int>((ref, assignmentId) async {

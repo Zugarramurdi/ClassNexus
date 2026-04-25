@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/subjects_provider.dart';
-import '../../profile/providers/profile_provider.dart';
-import 'tabs/subject_info_tab.dart';
-import 'tabs/subject_topics_tab.dart';
-import 'tabs/subject_assignments_tab.dart';
+import 'package:frontend/features/subjects/providers/subjects_provider.dart';
+import 'package:frontend/features/profile/providers/profile_provider.dart';
+import 'package:frontend/features/subjects/presentation/tabs/subject_info_tab.dart';
+import 'package:frontend/features/subjects/presentation/tabs/subject_topics_tab.dart';
+import 'package:frontend/features/subjects/presentation/tabs/subject_assignments_tab.dart';
+
+import 'package:frontend/core/theme/app_colors.dart';
 
 class SubjectDetailScreen extends ConsumerStatefulWidget {
   final String subjectId;
@@ -49,20 +51,16 @@ class _SubjectDetailScreenState extends ConsumerState<SubjectDetailScreen> with 
         );
 
         return Scaffold(
-          backgroundColor: Colors.white,
           appBar: AppBar(
-            elevation: 0,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
             title: Text(
               subject.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             bottom: TabBar(
               controller: _tabController,
-              labelColor: Colors.blue.shade700,
+              labelColor: AppColors.primary,
               unselectedLabelColor: Colors.black54,
-              indicatorColor: Colors.blue.shade700,
+              indicatorColor: AppColors.primary,
               indicatorWeight: 3,
               labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               tabs: const [

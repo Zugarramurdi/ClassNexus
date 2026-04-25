@@ -4,8 +4,11 @@ import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../providers/topics_provider.dart';
-import '../../../../core/network/api_client.dart';
+import 'package:frontend/features/subjects/providers/topics_provider.dart';
+import 'package:frontend/core/network/api_client.dart';
+
+import 'package:frontend/core/theme/app_colors.dart';
+import 'package:frontend/core/widgets/nexus_card.dart';
 
 class SubjectTopicsTab extends ConsumerStatefulWidget {
   final int subjectId;
@@ -165,15 +168,9 @@ class _SubjectTopicsTabState extends ConsumerState<SubjectTopicsTab> {
             itemCount: topics.length,
             itemBuilder: (context, index) {
               final topic = topics[index];
-              return Card(
-                elevation: 0,
-                margin: const EdgeInsets.only(bottom: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.grey.shade200),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: NexusCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -196,7 +193,7 @@ class _SubjectTopicsTabState extends ConsumerState<SubjectTopicsTab> {
                             ),
                           ),
                           if (topic.fileUrl != null)
-                             const Icon(Icons.file_present_outlined, color: Colors.blue),
+                             const Icon(Icons.file_present_outlined, color: AppColors.primary),
                         ],
                       ),
                       if (topic.fileUrl != null) ...[
@@ -226,7 +223,6 @@ class _SubjectTopicsTabState extends ConsumerState<SubjectTopicsTab> {
               onPressed: () => _showAddTopicDialog(context),
               icon: const Icon(Icons.add),
               label: const Text('Nuevo Tema'),
-              backgroundColor: Colors.blue.shade600,
             )
           : null,
     );

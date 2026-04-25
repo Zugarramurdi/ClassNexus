@@ -5,8 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'core/constants/env.dart';
-import 'core/router/app_router.dart';
+import 'package:frontend/core/constants/env.dart';
+import 'package:frontend/core/theme/app_theme.dart';
+import 'package:frontend/core/router/app_router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,11 +33,7 @@ class ClassNexusApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'ClassNexus',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        textTheme: GoogleFonts.interTextTheme(),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

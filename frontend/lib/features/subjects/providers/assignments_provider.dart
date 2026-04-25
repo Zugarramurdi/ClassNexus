@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/network/api_client.dart';
-import '../models/assignment_data.dart';
+import 'package:frontend/core/network/api_client.dart';
+import 'package:frontend/features/subjects/models/assignment_data.dart';
 
 // Definimos el Provider de los Assignments
 final assignmentsProvider = FutureProvider.family<List<AssignmentData>, int>((ref, subjectId) async {

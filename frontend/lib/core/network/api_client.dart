@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/auth/providers/auth_provider.dart';
-import '../constants/env.dart';
+import 'package:frontend/features/auth/providers/auth_provider.dart';
+import 'package:frontend/core/constants/env.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   const String baseUrl = Env.apiBaseUrl;
@@ -26,6 +26,14 @@ final dioProvider = Provider<Dio>((ref) {
         print('== DIO INTERCEPTOR: Warning! currentSession is NULL ==');
       }
       return handler.next(options);
+    },
+    onError: (e, handler) {
+      if (e.response?.statusCode == 401) {
+        print('== DIO INTERCEPTOR: Sesión inválida o expirada (401). Forzando cierre de sesión. ==');
+        // Usamos el notifier para limpiar el estado y que el router nos mande al login
+        ref.read(authNotifierProvider.notifier).signOut();
+      }
+      return handler.next(e);
     },
   ));
 

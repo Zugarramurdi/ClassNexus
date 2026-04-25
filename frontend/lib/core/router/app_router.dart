@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/presentation/login_screen.dart';
-import '../../features/auth/providers/auth_provider.dart';
-import '../../features/dashboard/presentation/dashboard_screen.dart';
-import '../../features/subjects/presentation/subjects_screen.dart';
-import '../../features/subjects/presentation/subject_detail_screen.dart';
+import 'package:frontend/features/auth/presentation/login_screen.dart';
+import 'package:frontend/features/auth/providers/auth_provider.dart';
+import 'package:frontend/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:frontend/features/subjects/presentation/subjects_screen.dart';
+import 'package:frontend/features/subjects/presentation/subject_detail_screen.dart';
+import 'package:frontend/features/subjects/presentation/task_detail_screen.dart';
+import 'package:frontend/features/subjects/models/assignment_data.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -41,6 +43,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => SubjectDetailScreen(
               subjectId: state.pathParameters['id']!,
             ),
+            routes: [
+              GoRoute(
+                path: 'tasks/:taskId',
+                builder: (context, state) => TaskDetailScreen(
+                  assignment: state.extra as AssignmentData,
+                ),
+              ),
+            ],
           ),
         ],
       ),

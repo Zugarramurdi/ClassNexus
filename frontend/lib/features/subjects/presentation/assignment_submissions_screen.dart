@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../models/assignment_data.dart';
-import '../models/submission_data.dart';
-import '../providers/submissions_provider.dart';
+
+import 'package:frontend/features/subjects/models/assignment_data.dart';
+import 'package:frontend/features/subjects/models/submission_data.dart';
+import 'package:frontend/features/subjects/providers/submissions_provider.dart';
+
+import 'package:frontend/core/theme/app_colors.dart';
+import 'package:frontend/core/widgets/nexus_card.dart';
 
 class AssignmentSubmissionsScreen extends ConsumerStatefulWidget {
   final AssignmentData assignment;
@@ -34,6 +38,7 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
         return StatefulBuilder(
           builder: (context, setModalState) {
             return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: Text('Calificar: ${submission.student?['first_name'] ?? 'Alumno'}'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -81,7 +86,9 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
                       setModalState(() => isSaving = false);
                     }
                   },
-                  child: isSaving ? const CircularProgressIndicator() : const Text('Guardar Nota'),
+                  child: isSaving 
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
+                    : const Text('Guardar Nota'),
                 ),
               ],
             );
@@ -100,8 +107,8 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.assignment.title, style: const TextStyle(fontSize: 16)),
-            Text('Entregas y Calificaciones', style: TextStyle(fontSize: 12, color: Colors.blue.shade200)),
+            Text(widget.assignment.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Entregas y Calificaciones', style: TextStyle(fontSize: 12, color: Colors.black54)),
           ],
         ),
       ),
@@ -116,7 +123,7 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             itemCount: submissions.length,
             itemBuilder: (context, index) {
               final sub = submissions[index];
@@ -124,22 +131,20 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
               final avatarUrl = sub.student?['avatar_url'];
               final isGraded = sub.score != null;
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: isGraded ? Colors.green.shade100 : Colors.blue.shade100),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: NexusCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           CircleAvatar(
+                            backgroundColor: AppColors.primary.withOpacity(0.1),
                             backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                            child: avatarUrl == null ? const Icon(Icons.person) : null,
+                            child: avatarUrl == null 
+                              ? Text(sub.student?['first_name']?[0] ?? 'A', style: const TextStyle(color: AppColors.primary)) 
+                              : null,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -151,22 +156,23 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
                                   Text('Nota: ${sub.score} / ${widget.assignment.maxScore}', 
                                     style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold))
                                 else
-                                  const Text('Pendiente de corregir', style: TextStyle(color: Colors.orange, fontSize: 13)),
+                                  const Text('Pendiente de corregir', style: TextStyle(color: Colors.orange, fontSize: 13, fontWeight: FontWeight.w600)),
                               ],
                             ),
                           ),
                           IconButton(
                             onPressed: () => _showGradeDialog(context, sub),
-                            icon: Icon(isGraded ? Icons.edit_note : Icons.grade, color: Colors.blue),
+                            icon: Icon(isGraded ? Icons.edit_note : Icons.grade, color: AppColors.primary),
                             tooltip: 'Calificar',
                           ),
                         ],
                       ),
-                      const Divider(height: 24),
+                      const Divider(height: 32),
                       if (sub.studentComment != null && sub.studentComment!.isNotEmpty) ...[
                         const Text('Comentario del alumno:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black54)),
+                        const SizedBox(height: 4),
                         Text(sub.studentComment!, style: const TextStyle(fontStyle: FontStyle.italic)),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                       ],
                       Wrap(
                         spacing: 8,
@@ -186,12 +192,12 @@ class _AssignmentSubmissionsScreenState extends ConsumerState<AssignmentSubmissi
                         ],
                       ),
                       if (isGraded && sub.feedback != null) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.green.shade50,
+                            color: Colors.green.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Column(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/subjects_provider.dart';
+import 'package:frontend/features/subjects/providers/subjects_provider.dart';
+import 'package:frontend/core/theme/app_colors.dart';
+import 'package:frontend/core/widgets/nexus_card.dart';
 
 class SubjectsScreen extends ConsumerWidget {
   const SubjectsScreen({super.key});
@@ -11,12 +13,8 @@ class SubjectsScreen extends ConsumerWidget {
     final subjectsAsync = ref.watch(subjectsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('Mis Asignaturas'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
       ),
       body: subjectsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -41,7 +39,7 @@ class SubjectsScreen extends ConsumerWidget {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              int columns = constraints.maxWidth > 1200 ? 5 : constraints.maxWidth > 800 ? 4 : constraints.maxWidth > 600 ? 3 : 2;
+              int columns = constraints.maxWidth > 1200 ? 4 : constraints.maxWidth > 800 ? 3 : constraints.maxWidth > 600 ? 2 : 1;
               
               return GridView.builder(
                 padding: const EdgeInsets.all(24),
@@ -49,7 +47,7 @@ class SubjectsScreen extends ConsumerWidget {
                   crossAxisCount: columns,
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
-                  childAspectRatio: 1.4, // Tarjetas un poco más horizontales
+                  childAspectRatio: 2.2, 
                 ),
                 itemCount: subjects.length,
                 itemBuilder: (context, index) {
@@ -66,61 +64,58 @@ class SubjectsScreen extends ConsumerWidget {
 }
 
 class _SubjectCard extends StatelessWidget {
-  final SubjectData subject;
+  final dynamic subject;
 
   const _SubjectCard({required this.subject});
 
   @override
   Widget build(BuildContext context) {
-    final color = Colors.purple; 
+    const color = AppColors.primary; 
 
-    return Card(
-      elevation: 0,
-      color: color.withOpacity(0.05),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: color.withOpacity(0.2)),
-      ),
-      child: InkWell(
-        onTap: () {
-          context.push('/subjects/${subject.id}');
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // Ajustarse al contenido
-            children: [
-              Icon(Icons.menu_book_rounded, size: 28, color: color.shade400),
-              const SizedBox(height: 12),
-              Flexible(
-                child: Text(
+    return NexusCard(
+      onTap: () {
+        context.push('/subjects/${subject.id}');
+      },
+      child: Row(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.menu_book_rounded, color: color),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
                   subject.name,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    height: 1.2,
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              if (subject.center != null)
-                Text(
-                  subject.center!['name'] ?? '',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
+                if (subject.center != null)
+                  Text(
+                    subject.center!['name'] ?? '',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

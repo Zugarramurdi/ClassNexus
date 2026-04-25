@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/network/api_client.dart';
+import 'package:frontend/core/network/api_client.dart';
 
 class ProfileData {
   final String id;
