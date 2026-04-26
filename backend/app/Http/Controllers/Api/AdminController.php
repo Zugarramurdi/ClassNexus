@@ -45,18 +45,26 @@ class AdminController extends Controller
 
         // 2. Crear usuario en Supabase Auth (vía Admin API)
         // Usamos una contraseña temporal por defecto para simplificar el flujo inicial
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $serviceRoleKey,
-            'apikey' => $serviceRoleKey,
-        ])->post($supabaseUrl . '/auth/v1/admin/users', [
-            'email' => $request->email,
-            'password' => 'ClassNexus2024!', // Contraseña temporal
-            'email_confirm' => true,
-            'user_metadata' => [
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-            ]
-        ]);
+        try {
+            $response = Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Bearer ' . $serviceRoleKey,
+                'apikey' => $serviceRoleKey,
+            ])->post($supabaseUrl . '/auth/v1/admin/users', [
+                'email' => $request->email,
+                'password' => 'ClassNexus2024!', // Contraseña temporal
+                'email_confirm' => true,
+                'user_metadata' => [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Excepción llamando a Supabase Auth API: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error de conexión con el servicio de autenticación',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         if ($response->failed()) {
             Log::error('Error creando usuario en Supabase Auth', [
@@ -64,7 +72,7 @@ class AdminController extends Controller
                 'body' => $response->json()
             ]);
             return response()->json([
-                'message' => 'Error al crear el usuario en el servicio de autenticación',
+                'message' => 'Supabase Auth denegó la creación del usuario',
                 'details' => $response->json()
             ], $response->status());
         }
@@ -73,13 +81,25 @@ class AdminController extends Controller
         $newUserId = $userData['id'];
 
         // 3. Crear el perfil en la tabla pública
-        $profile = Profile::create([
-            'id' => $newUserId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'role_id' => $request->role_id,
-            'center_id' => $request->center_id,
-        ]);
+        try {
+            $profile = Profile::create([
+                'id' => $newUserId,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'role_id' => $request->role_id,
+                'center_id' => $request->center_id,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error creando perfil en DB tras crear usuario en Auth', [
+                'user_id' => $newUserId,
+                'error' => $e->getMessage()
+            ]);
+            // Nota: El usuario ya está creado en Auth. En producción se debería hacer rollback manual si no hay transacciones distribuidas.
+            return response()->json([
+                'message' => 'Usuario creado en Auth pero falló la creación del perfil en la base de datos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'Usuario creado correctamente',
@@ -104,10 +124,14 @@ class AdminController extends Controller
 
         // Eliminar de Auth primero
         if ($serviceRoleKey) {
-            Http::withHeaders([
-                'Authorization' => 'Bearer ' . $serviceRoleKey,
-                'apikey' => $serviceRoleKey,
-            ])->delete($supabaseUrl . '/auth/v1/admin/users/' . $id);
+            try {
+                Http::withoutVerifying()->withHeaders([
+                    'Authorization' => 'Bearer ' . $serviceRoleKey,
+                    'apikey' => $serviceRoleKey,
+                ])->delete($supabaseUrl . '/auth/v1/admin/users/' . $id);
+            } catch (\Exception $e) {
+                Log::warning('No se pudo eliminar de Auth (posiblemente ya no existe): ' . $e->getMessage());
+            }
         }
 
         // Eliminar perfil (la cascada de la DB debería encargarse de lo demás)
@@ -134,9 +158,16 @@ class AdminController extends Controller
             'address' => 'nullable|string',
         ]);
 
-        $center = \App\Models\Center::create($request->all());
-
-        return response()->json($center, 201);
+        try {
+            $center = \App\Models\Center::create($request->all());
+            return response()->json($center, 201);
+        } catch (\Exception $e) {
+            Log::error('Error creando centro en DB: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al crear el centro en la base de datos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -151,8 +182,15 @@ class AdminController extends Controller
             return response()->json(['message' => 'No tienes permisos de administrador'], 403);
         }
 
-        \App\Models\Center::destroy($id);
-
-        return response()->json(['message' => 'Centro eliminado correctamente']);
+        try {
+            \App\Models\Center::destroy($id);
+            return response()->json(['message' => 'Centro eliminado correctamente']);
+        } catch (\Exception $e) {
+            Log::error('Error eliminando centro en DB: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al eliminar el centro',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
