@@ -65,6 +65,28 @@ class CentersNotifier extends AsyncNotifier<List<CenterModel>> {
         'code': code,
         'address': address,
       });
+      ref.invalidate(profileProvider);
+      state = AsyncData(await _fetchCenters());
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> updateCenter({
+    required int id,
+    required String name,
+    required String code,
+    String? address,
+  }) async {
+    state = const AsyncLoading();
+    try {
+      final dio = ref.read(dioProvider);
+      await dio.put('/admin/centers/$id', data: {
+        'name': name,
+        'code': code,
+        'address': address,
+      });
+      ref.invalidate(profileProvider);
       state = AsyncData(await _fetchCenters());
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -76,6 +98,7 @@ class CentersNotifier extends AsyncNotifier<List<CenterModel>> {
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/admin/centers/$id');
+      ref.invalidate(profileProvider);
       state = AsyncData(await _fetchCenters());
     } catch (e, st) {
       state = AsyncError(e, st);

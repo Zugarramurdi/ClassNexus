@@ -9,6 +9,8 @@ class ProfileData {
   final String? avatarUrl;
   final String? email;
   final int? roleId;
+  final int? centerId;
+  final String? tutorId;
   final Map<String, dynamic>? role;
 
   ProfileData({
@@ -18,6 +20,8 @@ class ProfileData {
     this.avatarUrl,
     this.email,
     this.roleId,
+    this.centerId,
+    this.tutorId,
     this.role,
   });
 
@@ -29,6 +33,8 @@ class ProfileData {
       avatarUrl: json['avatar_url']?.toString(),
       email: json['email']?.toString(),
       roleId: json['role_id'] != null ? int.tryParse(json['role_id'].toString()) : null,
+      centerId: json['center_id'] != null ? int.tryParse(json['center_id'].toString()) : null,
+      tutorId: json['tutor_id']?.toString(),
       role: json['role'] as Map<String, dynamic>?,
     );
   }

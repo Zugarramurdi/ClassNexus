@@ -30,21 +30,47 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     required String firstName,
     required String lastName,
     required int roleId,
+    required int roleId,
     int? centerId,
+    String? tutorId,
   }) async {
     state = const AsyncLoading();
     try {
       final dio = ref.read(dioProvider);
-      // Llamada al backend Laravel para orquestar la creación en Auth + Profiles
       await dio.post('/admin/users', data: {
         'email': email,
         'first_name': firstName,
         'last_name': lastName,
         'role_id': roleId,
         'center_id': centerId,
+        'tutor_id': tutorId,
       });
       
-      // Refrescar la lista tras la creación
+      ref.invalidate(profileProvider); // Invalidar el perfil actual por si acaso
+      state = AsyncData(await _fetchUsers());
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> updateUser({
+    required String id,
+    required String firstName,
+    required String lastName,
+    int? centerId,
+    String? tutorId,
+  }) async {
+    state = const AsyncLoading();
+    try {
+      final dio = ref.read(dioProvider);
+      await dio.put('/admin/users/$id', data: {
+        'first_name': firstName,
+        'last_name': lastName,
+        'center_id': centerId,
+        'tutor_id': tutorId,
+      });
+      
+      ref.invalidate(profileProvider);
       state = AsyncData(await _fetchUsers());
     } catch (e, st) {
       state = AsyncError(e, st);
@@ -56,6 +82,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     try {
       final dio = ref.read(dioProvider);
       await dio.delete('/admin/users/$id');
+      ref.invalidate(profileProvider);
       state = AsyncData(await _fetchUsers());
     } catch (e, st) {
       state = AsyncError(e, st);

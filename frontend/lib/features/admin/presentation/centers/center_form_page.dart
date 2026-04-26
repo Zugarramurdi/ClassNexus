@@ -4,7 +4,8 @@ import 'package:frontend/features/admin/providers/centers_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class CenterFormPage extends ConsumerStatefulWidget {
-  const CenterFormPage({super.key});
+  final CenterModel? center;
+  const CenterFormPage({super.key, this.center});
 
   @override
   ConsumerState<CenterFormPage> createState() => _CenterFormPageState();
@@ -12,10 +13,18 @@ class CenterFormPage extends ConsumerStatefulWidget {
 
 class _CenterFormPageState extends ConsumerState<CenterFormPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _codeController = TextEditingController();
-  final _addressController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _codeController;
+  late final TextEditingController _addressController;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.center?.name);
+    _codeController = TextEditingController(text: widget.center?.code);
+    _addressController = TextEditingController(text: widget.center?.address);
+  }
 
   @override
   void dispose() {
@@ -25,11 +34,13 @@ class _CenterFormPageState extends ConsumerState<CenterFormPage> {
     super.dispose();
   }
 
+  bool get _isEditing => widget.center != null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('NUEVO CENTRO'),
+        title: Text(_isEditing ? 'EDITAR CENTRO' : 'NUEVO CENTRO'),
       ),
       body: Center(
         child: Container(
@@ -78,8 +89,8 @@ class _CenterFormPageState extends ConsumerState<CenterFormPage> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: _isLoading 
-                        ? const CircularProgressIndicator() 
-                        : const Text('GUARDAR CENTRO', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+                        : Text(_isEditing ? 'GUARDAR CAMBIOS' : 'CREAR CENTRO', style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -95,11 +106,20 @@ class _CenterFormPageState extends ConsumerState<CenterFormPage> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        await ref.read(centersProvider.notifier).createCenter(
-          name: _nameController.text,
-          code: _codeController.text,
-          address: _addressController.text.isEmpty ? null : _addressController.text,
-        );
+        if (_isEditing) {
+          await ref.read(centersProvider.notifier).updateCenter(
+            id: widget.center!.id,
+            name: _nameController.text,
+            code: _codeController.text,
+            address: _addressController.text.isEmpty ? null : _addressController.text,
+          );
+        } else {
+          await ref.read(centersProvider.notifier).createCenter(
+            name: _nameController.text,
+            code: _codeController.text,
+            address: _addressController.text.isEmpty ? null : _addressController.text,
+          );
+        }
         if (mounted) context.pop();
       } catch (e) {
         if (mounted) {

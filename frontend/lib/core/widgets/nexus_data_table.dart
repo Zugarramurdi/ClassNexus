@@ -6,6 +6,7 @@ class NexusDataTable extends StatefulWidget {
   final List<Map<String, dynamic>> data;
   final bool searchable;
   final Function(Map<String, dynamic>)? onTap;
+  final Widget Function(Map<String, dynamic>)? actionsBuilder;
 
   const NexusDataTable({
     super.key,
@@ -13,6 +14,7 @@ class NexusDataTable extends StatefulWidget {
     required this.data,
     this.searchable = false,
     this.onTap,
+    this.actionsBuilder,
   });
 
   @override
@@ -81,27 +83,31 @@ class _NexusDataTableState extends State<NexusDataTable> {
                 child: NexusCard(
                   onTap: widget.onTap != null ? () => widget.onTap!(row) : null,
                   child: Row(
-                    children: widget.columns.map((col) {
-                      return Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              col.toUpperCase(),
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                    children: [
+                      ...widget.columns.map((col) {
+                        return Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                col.toUpperCase(),
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              row[col]?.toString() ?? '-',
-                              style: const TextStyle(fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
+                              const SizedBox(height: 4),
+                              Text(
+                                row[col]?.toString() ?? '-',
+                                style: const TextStyle(fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      if (widget.actionsBuilder != null)
+                        widget.actionsBuilder!(row),
+                    ],
                   ),
                 ),
               );

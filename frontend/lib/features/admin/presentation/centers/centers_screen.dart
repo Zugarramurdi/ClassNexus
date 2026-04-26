@@ -2,10 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/widgets/nexus_data_table.dart';
 import 'package:frontend/features/admin/providers/centers_provider.dart';
+import 'package:frontend/features/admin/presentation/centers/center_form_page.dart';
 import 'package:go_router/go_router.dart';
 
 class CentersScreen extends ConsumerWidget {
   const CentersScreen({super.key});
+
+  void _confirmDelete(BuildContext context, WidgetRef ref, int id, String name) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar borrado'),
+        content: Text('¿Estás seguro de que quieres eliminar el centro $name?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCELAR'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await ref.read(centersProvider.notifier).deleteCenter(id);
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Centro $name eliminado')),
+                );
+              }
+            },
+            child: const Text('ELIMINAR', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,11 +66,26 @@ class CentersScreen extends ConsumerWidget {
           }
           return NexusDataTable(
             columns: const ['NOMBRE', 'CÓDIGO', 'DIRECCIÓN'],
-            data: centers.map((c) => c.toTableData()).toList(),
+            data: centers.map((c) => {
+              ...c.toTableData(),
+              'original': c,
+            }).toList(),
             searchable: true,
-            onTap: (row) {
-              // TODO: Navegar a detalle/edición
-            },
+            actionsBuilder: (row) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => CenterFormPage(center: row['original']))
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _confirmDelete(context, ref, row['id'] as int, row['NOMBRE']),
+                ),
+              ],
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
