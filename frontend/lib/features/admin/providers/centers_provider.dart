@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:frontend/core/network/api_client.dart';
 import 'package:frontend/features/auth/providers/auth_provider.dart';
+import 'package:frontend/features/profile/providers/profile_provider.dart';
 
 class CenterModel {
   final int id;
@@ -57,8 +59,8 @@ class CentersNotifier extends AsyncNotifier<List<CenterModel>> {
   }) async {
     state = const AsyncLoading();
     try {
-      final supabase = ref.read(supabaseClientProvider);
-      await supabase.from('centers').insert({
+      final dio = ref.read(dioProvider);
+      await dio.post('/admin/centers', data: {
         'name': name,
         'code': code,
         'address': address,
@@ -72,8 +74,8 @@ class CentersNotifier extends AsyncNotifier<List<CenterModel>> {
   Future<void> deleteCenter(int id) async {
     state = const AsyncLoading();
     try {
-      final supabase = ref.read(supabaseClientProvider);
-      await supabase.from('centers').delete().eq('id', id);
+      final dio = ref.read(dioProvider);
+      await dio.delete('/admin/centers/$id');
       state = AsyncData(await _fetchCenters());
     } catch (e, st) {
       state = AsyncError(e, st);

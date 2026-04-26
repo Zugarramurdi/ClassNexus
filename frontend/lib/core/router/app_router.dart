@@ -20,16 +20,19 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
-      // If we are still waiting for auth state, do nothing
       if (authState.isLoading) return null;
 
       final isAuth = authState.value?.session != null;
       final isLoggingIn = state.uri.path == '/';
+      final isAdminPath = state.uri.path.startsWith('/admin');
+
+      // Permitir el acceso a rutas de admin si se solicita explícitamente (Bypass)
+      if (isAdminPath) return null;
 
       if (!isAuth && !isLoggingIn) return '/';
       if (isAuth && isLoggingIn) return '/dashboard';
       
-      return null; // No redirection needed
+      return null;
     },
     routes: [
       GoRoute(

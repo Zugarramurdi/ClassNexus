@@ -49,4 +49,11 @@ Route::middleware('supabase.auth')->group(function () {
     Route::get('/assignments/{assignment}/submissions', [\App\Http\Controllers\Api\SubmissionController::class, 'index']);
     Route::post('/assignments/{assignment}/submissions', [\App\Http\Controllers\Api\SubmissionController::class, 'store']);
     Route::patch('/submissions/{submission}/grade', [\App\Http\Controllers\Api\SubmissionController::class, 'grade']);
+
+    // ADMINISTRACIÓN
+    Route::post('/admin/users', [\App\Http\Controllers\Api\AdminController::class, 'storeUser']);
+    Route::delete('/admin/users/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteUser']);
+    
+    Route::post('/admin/centers', [\App\Http\Controllers\Api\AdminController::class, 'storeCenter']);
+    Route::delete('/admin/centers/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteCenter']);
 });

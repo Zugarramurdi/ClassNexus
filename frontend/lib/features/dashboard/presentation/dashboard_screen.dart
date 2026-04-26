@@ -21,6 +21,14 @@ class DashboardScreen extends ConsumerWidget {
         data: (profile) {
           if (profile == null) return const Center(child: Text('Perfil no encontrado'));
 
+          // Redirección automática si es Administrador (role_id = 1)
+          if (profile.roleId == 1) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) context.go('/admin/centers');
+            });
+            return const Center(child: CircularProgressIndicator());
+          }
+
           final isTeacher = profile.role?['name']?.toString().toLowerCase() == 'profesor';
 
           return ResponsiveLayout(

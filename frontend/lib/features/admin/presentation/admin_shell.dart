@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/features/auth/providers/auth_provider.dart';
 
-class AdminShell extends StatelessWidget {
+class AdminShell extends ConsumerWidget {
   final Widget child;
 
   const AdminShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Definimos el breakpoint para escritorio
     final isDesktop = MediaQuery.of(context).size.width >= 900;
     final location = GoRouterState.of(context).uri.path;
@@ -16,7 +18,7 @@ class AdminShell extends StatelessWidget {
       body: Row(
         children: [
           if (isDesktop)
-            _AdminSidebar(currentPath: location),
+            _AdminSidebar(currentPath: location, ref: ref),
           Expanded(child: child),
         ],
       ),
@@ -27,7 +29,8 @@ class AdminShell extends StatelessWidget {
 
 class _AdminSidebar extends StatelessWidget {
   final String currentPath;
-  const _AdminSidebar({required this.currentPath});
+  final WidgetRef ref;
+  const _AdminSidebar({required this.currentPath, required this.ref});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +83,10 @@ class _AdminSidebar extends StatelessWidget {
             icon: Icons.logout,
             label: 'CERRAR SESIÓN',
             isActive: false,
-            onTap: () => context.go('/'),
+            onTap: () {
+              ref.read(authNotifierProvider.notifier).signOut();
+              context.go('/');
+            },
           ),
           const SizedBox(height: 16),
         ],
