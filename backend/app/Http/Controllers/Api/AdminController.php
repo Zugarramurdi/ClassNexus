@@ -31,6 +31,7 @@ class AdminController extends Controller
             'last_name' => 'required|string',
             'role_id' => 'required|integer',
             'center_id' => 'nullable|integer',
+            'tutor_id' => 'nullable|uuid',
         ]);
 
         $supabaseUrl = env('SUPABASE_URL');
@@ -92,6 +93,7 @@ class AdminController extends Controller
                     'email' => $request->email,
                     'role_id' => $request->role_id,
                     'center_id' => $request->center_id,
+                    'tutor_id' => $request->tutor_id,
                 ]
             );
         } catch (\Exception $e) {
@@ -110,6 +112,46 @@ class AdminController extends Controller
             'message' => 'Usuario creado correctamente',
             'profile' => $profile
         ], 201);
+    }
+
+    /**
+     * Actualiza un usuario.
+     */
+    public function updateUser(Request $request, $id)
+    {
+        $callerId = $request->attributes->get('supabase_user_id');
+        $admin = Profile::find($callerId);
+
+        if (!$admin || $admin->role_id !== 1) {
+            return response()->json(['message' => 'No tienes permisos de administrador'], 403);
+        }
+
+        $request->validate([
+            'first_name' => 'required|string',
+            'last_name' => 'required|string',
+            'center_id' => 'nullable|integer',
+            'tutor_id' => 'nullable|uuid',
+        ]);
+
+        try {
+            $profile = Profile::findOrFail($id);
+            $profile->update([
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'center_id' => $request->center_id,
+                'tutor_id' => $request->tutor_id,
+            ]);
+
+            return response()->json([
+                'message' => 'Usuario actualizado correctamente',
+                'profile' => $profile
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar el usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -196,6 +238,36 @@ class AdminController extends Controller
             Log::error('Error eliminando centro en DB: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Error al eliminar el centro',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualiza un centro educativo.
+     */
+    public function updateCenter(Request $request, $id)
+    {
+        $callerId = $request->attributes->get('supabase_user_id');
+        $admin = Profile::find($callerId);
+
+        if (!$admin || $admin->role_id !== 1) {
+            return response()->json(['message' => 'No tienes permisos de administrador'], 403);
+        }
+
+        $request->validate([
+            'name' => 'required|string',
+            'code' => 'required|string|unique:centers,code,' . $id,
+            'address' => 'nullable|string',
+        ]);
+
+        try {
+            $center = \App\Models\Center::findOrFail($id);
+            $center->update($request->all());
+            return response()->json($center);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al actualizar el centro',
                 'error' => $e->getMessage()
             ], 500);
         }

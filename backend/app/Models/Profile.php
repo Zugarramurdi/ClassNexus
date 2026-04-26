@@ -22,6 +22,7 @@ class Profile extends Model
         'email',
         'role_id',
         'center_id',
+        'tutor_id',
     ];
 
     public function role()
@@ -42,5 +43,15 @@ class Profile extends Model
     public function submissions()
     {
         return $this->hasMany(Submission::class, 'student_id');
+    }
+
+    public function tutor()
+    {
+        return $this->belongsTo(Profile::class, 'tutor_id');
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Profile::class, 'tutor_id');
     }
 }
