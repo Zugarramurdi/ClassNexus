@@ -18,38 +18,34 @@ class AdminCyclesListPage extends ConsumerWidget {
       body: cyclesAsync.when(
         data: (cycles) => Padding(
           padding: const EdgeInsets.all(24.0),
-          child: NexusDataTable<CycleData>(
-            items: cycles,
-            searchPlaceholder: 'Buscar ciclo...',
-            searchMatcher: (cycle, query) => 
-                cycle.name.toLowerCase().contains(query.toLowerCase()),
-            columns: [
-              NexusColumn(
-                label: 'CICLO',
-                builder: (c) => Text(c.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              NexusColumn(
-                label: 'DESCRIPCIÓN',
-                builder: (c) => Text(c.description ?? '-', style: const TextStyle(fontSize: 13)),
-              ),
-              NexusColumn(
-                label: 'ASIGNATURAS',
-                builder: (c) => Text('${c.subjectIds?.length ?? 0} asignaturas'),
-              ),
-            ],
-            actionsBuilder: (cycle) => [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => CycleFormPage(cycle: cycle)),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _confirmDelete(context, ref, cycle),
-              ),
-            ],
+          child: NexusDataTable(
+            columns: const ['CICLO', 'DESCRIPCIÓN', 'ASIGNATURAS'],
+            data: cycles.map((c) => {
+              'CICLO': c.name,
+              'DESCRIPCIÓN': c.description ?? '-',
+              'ASIGNATURAS': '${c.subjectIds?.length ?? 0} asignaturas',
+              'original': c,
+            }).toList(),
+            searchable: true,
+            actionsBuilder: (row) {
+              final cycle = row['original'] as CycleData;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => CycleFormPage(cycle: cycle)),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, ref, cycle),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),

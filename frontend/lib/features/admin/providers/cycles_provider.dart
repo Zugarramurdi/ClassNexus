@@ -31,10 +31,10 @@ class CycleData {
     }
 
     return CycleData(
-      id: json['id'],
+      id: int.parse(json['id'].toString()),
       name: json['name'],
       description: json['description'],
-      centerId: json['center_id'],
+      centerId: json['center_id'] != null ? int.parse(json['center_id'].toString()) : null,
       subjectIds: subjects,
     );
   }

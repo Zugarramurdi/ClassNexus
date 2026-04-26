@@ -21,10 +21,10 @@ class SubjectData {
 
   factory SubjectData.fromJson(Map<String, dynamic> json) {
     return SubjectData(
-      id: json['id'],
+      id: int.parse(json['id'].toString()),
       name: json['name'],
       description: json['description'],
-      centerId: json['center_id'],
+      centerId: json['center_id'] != null ? int.parse(json['center_id'].toString()) : null,
       center: json['center'] as Map<String, dynamic>?,
       teachers: json['teachers'] as List<dynamic>?,
     );

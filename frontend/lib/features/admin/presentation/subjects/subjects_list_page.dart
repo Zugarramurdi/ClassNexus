@@ -19,38 +19,34 @@ class AdminSubjectsListPage extends ConsumerWidget {
       body: subjectsAsync.when(
         data: (subjects) => Padding(
           padding: const EdgeInsets.all(24.0),
-          child: NexusDataTable<SubjectData>(
-            items: subjects,
-            searchPlaceholder: 'Buscar asignatura...',
-            searchMatcher: (subject, query) => 
-                subject.name.toLowerCase().contains(query.toLowerCase()),
-            columns: [
-              NexusColumn(
-                label: 'NOMBRE',
-                builder: (s) => Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              NexusColumn(
-                label: 'DESCRIPCIÓN',
-                builder: (s) => Text(s.description ?? '-', style: const TextStyle(fontSize: 13)),
-              ),
-              NexusColumn(
-                label: 'CENTRO',
-                builder: (s) => Text(s.center?['name'] ?? 'N/A'),
-              ),
-            ],
-            actionsBuilder: (subject) => [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.blue),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => SubjectFormPage(subject: subject)),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => _confirmDelete(context, ref, subject),
-              ),
-            ],
+          child: NexusDataTable(
+            columns: const ['NOMBRE', 'DESCRIPCIÓN', 'CENTRO'],
+            data: subjects.map((s) => {
+              'NOMBRE': s.name,
+              'DESCRIPCIÓN': s.description ?? '-',
+              'CENTRO': s.center?['name'] ?? 'N/A',
+              'original': s,
+            }).toList(),
+            searchable: true,
+            actionsBuilder: (row) {
+              final subject = row['original'] as SubjectData;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => SubjectFormPage(subject: subject)),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _confirmDelete(context, ref, subject),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
