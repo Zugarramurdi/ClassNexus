@@ -26,6 +26,11 @@ class Subject extends Model
         return $this->belongsToMany(Profile::class, 'profile_subject');
     }
 
+    public function cycles()
+    {
+        return $this->belongsToMany(Cycle::class, 'cycle_subject');
+    }
+
     public function topics()
     {
         return $this->hasMany(Topic::class);

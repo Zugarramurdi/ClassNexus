@@ -15,7 +15,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
       // Obtenemos todos los perfiles con sus roles y centros asociados
       final response = await supabase
           .from('profiles')
-          .select('*, role:roles(*)')
+          .select('*, role:roles(*), teachingSubjects:profile_subject(subject_id)')
           .order('last_name');
       
       return (response as List).map((json) => ProfileData.fromJson(json)).toList();
@@ -30,9 +30,9 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     required String firstName,
     required String lastName,
     required int roleId,
-    required int roleId,
     int? centerId,
     String? tutorId,
+    List<int>? subjectIds,
   }) async {
     state = const AsyncLoading();
     try {
@@ -44,6 +44,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
         'role_id': roleId,
         'center_id': centerId,
         'tutor_id': tutorId,
+        'subject_ids': subjectIds,
       });
       
       ref.invalidate(profileProvider); // Invalidar el perfil actual por si acaso
@@ -59,6 +60,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     required String lastName,
     int? centerId,
     String? tutorId,
+    List<int>? subjectIds,
   }) async {
     state = const AsyncLoading();
     try {
@@ -68,6 +70,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
         'last_name': lastName,
         'center_id': centerId,
         'tutor_id': tutorId,
+        'subject_ids': subjectIds,
       });
       
       ref.invalidate(profileProvider);

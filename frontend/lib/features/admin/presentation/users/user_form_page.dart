@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/admin/providers/admin_users_provider.dart';
 import 'package:frontend/features/admin/providers/centers_provider.dart';
 import 'package:frontend/features/profile/providers/profile_provider.dart';
+import 'package:frontend/features/subjects/providers/subjects_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class UserFormPage extends ConsumerStatefulWidget {
@@ -91,6 +92,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
   late final TextEditingController _lastNameController;
   int? _selectedCenterId;
   String? _selectedTutorId;
+  List<int> _selectedSubjectIds = [];
   bool _isLoading = false;
 
   @override
@@ -101,6 +103,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
     _lastNameController = TextEditingController(text: widget.user?.lastName);
     _selectedCenterId = widget.user?.centerId;
     _selectedTutorId = widget.user?.tutorId;
+    _selectedSubjectIds = widget.user?.teachingSubjects ?? [];
   }
 
   @override
@@ -168,13 +171,28 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                     const SizedBox(height: 16),
                     _CenterDropdown(
                       selectedId: _selectedCenterId,
-                      onChanged: (id) => setState(() => _selectedCenterId = id),
+                      onChanged: (id) {
+                        setState(() {
+                          if (_selectedCenterId != id) {
+                            _selectedSubjectIds = []; // Limpiar asignaturas si cambia el centro
+                          }
+                          _selectedCenterId = id;
+                        });
+                      },
                     ),
                     if (widget.roleId == 3) ...[
                       const SizedBox(height: 16),
                       _TutorDropdown(
                         selectedId: _selectedTutorId,
                         onChanged: (id) => setState(() => _selectedTutorId = id),
+                      ),
+                    ],
+                    if (widget.roleId == 2) ...[
+                      const SizedBox(height: 16),
+                      _SubjectSelector(
+                        centerId: _selectedCenterId,
+                        selectedIds: _selectedSubjectIds,
+                        onChanged: (ids) => setState(() => _selectedSubjectIds = ids),
                       ),
                     ],
                     const SizedBox(height: 32),
@@ -209,6 +227,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
             lastName: _lastNameController.text,
             centerId: _selectedCenterId,
             tutorId: _selectedTutorId,
+            subjectIds: widget.roleId == 2 ? _selectedSubjectIds : null,
           );
         } else {
           await ref.read(adminUsersProvider.notifier).createUser(
@@ -218,6 +237,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
             roleId: widget.roleId,
             centerId: _selectedCenterId,
             tutorId: _selectedTutorId,
+            subjectIds: widget.roleId == 2 ? _selectedSubjectIds : null,
           );
         }
         if (mounted) context.pop();
@@ -231,5 +251,69 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
         if (mounted) setState(() => _isLoading = false);
       }
     }
+  }
+}
+
+class _SubjectSelector extends ConsumerWidget {
+  final int? centerId;
+  final List<int> selectedIds;
+  final ValueChanged<List<int>> onChanged;
+
+  const _SubjectSelector({
+    required this.centerId,
+    required this.selectedIds,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (centerId == null) return const SizedBox.shrink();
+
+    final subjectsAsync = ref.watch(subjectsProvider);
+
+    return subjectsAsync.when(
+      data: (subjects) {
+        final centerSubjects = subjects.where((s) => s.centerId == centerId).toList();
+
+        if (centerSubjects.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text('No hay asignaturas registradas en este centro', style: TextStyle(fontStyle: FontStyle.italic, fontSize: 13)),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Asignaturas que imparte', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 0,
+              children: centerSubjects.map((s) {
+                final isSelected = selectedIds.contains(s.id);
+                return FilterChip(
+                  label: Text(s.name, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : null)),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    final newList = List<int>.from(selectedIds);
+                    if (selected) {
+                      newList.add(s.id);
+                    } else {
+                      newList.remove(s.id);
+                    }
+                    onChanged(newList);
+                  },
+                  selectedColor: Theme.of(context).colorScheme.primary,
+                  checkmarkColor: Colors.white,
+                );
+              }).toList(),
+            ),
+          ],
+        );
+      },
+      loading: () => const LinearProgressIndicator(),
+      error: (_, __) => const Text('Error al cargar asignaturas'),
+    );
   }
 }

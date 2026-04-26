@@ -32,6 +32,8 @@ class AdminController extends Controller
             'role_id' => 'required|integer',
             'center_id' => 'nullable|integer',
             'tutor_id' => 'nullable|uuid',
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'integer',
         ]);
 
         $supabaseUrl = env('SUPABASE_URL');
@@ -96,6 +98,10 @@ class AdminController extends Controller
                     'tutor_id' => $request->tutor_id,
                 ]
             );
+            // 4. Sincronizar asignaturas si es profesor
+            if ($request->has('subject_ids')) {
+                $profile->teachingSubjects()->sync($request->subject_ids);
+            }
         } catch (\Exception $e) {
             Log::error('Error creando perfil en DB tras crear usuario en Auth', [
                 'user_id' => $newUserId,
@@ -131,6 +137,8 @@ class AdminController extends Controller
             'last_name' => 'required|string',
             'center_id' => 'nullable|integer',
             'tutor_id' => 'nullable|uuid',
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'integer',
         ]);
 
         try {
@@ -141,6 +149,11 @@ class AdminController extends Controller
                 'center_id' => $request->center_id,
                 'tutor_id' => $request->tutor_id,
             ]);
+            
+            // Sincronizar asignaturas si se envían
+            if ($request->has('subject_ids')) {
+                $profile->teachingSubjects()->sync($request->subject_ids);
+            }
 
             return response()->json([
                 'message' => 'Usuario actualizado correctamente',
@@ -270,6 +283,106 @@ class AdminController extends Controller
                 'message' => 'Error al actualizar el centro',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Gestión de Ciclos Formativos
+     */
+    public function storeCycle(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'center_id' => 'required|integer',
+            'description' => 'nullable|string',
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'integer',
+        ]);
+
+        try {
+            $cycle = \App\Models\Cycle::create($request->only(['name', 'center_id', 'description']));
+            if ($request->has('subject_ids')) {
+                $cycle->subjects()->sync($request->subject_ids);
+            }
+            return response()->json($cycle, 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al crear el ciclo', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateCycle(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'subject_ids' => 'nullable|array',
+            'subject_ids.*' => 'integer',
+        ]);
+
+        try {
+            $cycle = \App\Models\Cycle::findOrFail($id);
+            $cycle->update($request->only(['name', 'description']));
+            if ($request->has('subject_ids')) {
+                $cycle->subjects()->sync($request->subject_ids);
+            }
+            return response()->json($cycle);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el ciclo', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteCycle($id)
+    {
+        try {
+            \App\Models\Cycle::destroy($id);
+            return response()->json(['message' => 'Ciclo eliminado correctamente']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar el ciclo', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Gestión de Asignaturas
+     */
+    public function storeSubject(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'center_id' => 'required|integer',
+            'description' => 'nullable|string',
+        ]);
+
+        try {
+            $subject = \App\Models\Subject::create($request->all());
+            return response()->json($subject, 201);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al crear la asignatura', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateSubject(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+        ]);
+
+        try {
+            $subject = \App\Models\Subject::findOrFail($id);
+            $subject->update($request->all());
+            return response()->json($subject);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar la asignatura', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteSubject($id)
+    {
+        try {
+            \App\Models\Subject::destroy($id);
+            return response()->json(['message' => 'Asignatura eliminada correctamente']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar la asignatura', 'error' => $e->getMessage()], 500);
         }
     }
 }

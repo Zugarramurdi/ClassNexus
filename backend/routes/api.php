@@ -58,4 +58,12 @@ Route::middleware('supabase.auth')->group(function () {
     Route::post('/admin/centers', [\App\Http\Controllers\Api\AdminController::class, 'storeCenter']);
     Route::put('/admin/centers/{id}', [\App\Http\Controllers\Api\AdminController::class, 'updateCenter']);
     Route::delete('/admin/centers/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteCenter']);
+
+    Route::post('/admin/cycles', [\App\Http\Controllers\Api\AdminController::class, 'storeCycle']);
+    Route::put('/admin/cycles/{id}', [\App\Http\Controllers\Api\AdminController::class, 'updateCycle']);
+    Route::delete('/admin/cycles/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteCycle']);
+
+    Route::post('/admin/subjects', [\App\Http\Controllers\Api\AdminController::class, 'storeSubject']);
+    Route::put('/admin/subjects/{id}', [\App\Http\Controllers\Api\AdminController::class, 'updateSubject']);
+    Route::delete('/admin/subjects/{id}', [\App\Http\Controllers\Api\AdminController::class, 'deleteSubject']);
 });

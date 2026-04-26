@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/features/auth/providers/auth_provider.dart';
+import 'package:frontend/features/admin/presentation/cycles/cycles_list_page.dart';
+import 'package:frontend/features/admin/presentation/subjects/subjects_list_page.dart';
 
 class AdminShell extends ConsumerWidget {
   final Widget child;
@@ -37,7 +39,7 @@ class _AdminSidebar extends StatelessWidget {
     return Container(
       width: 260,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
         border: Border(
           right: BorderSide(
             color: Theme.of(context).dividerColor.withOpacity(0.1),
@@ -48,15 +50,8 @@ class _AdminSidebar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Text(
-              'CLASSNEXUS',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
+            padding: const EdgeInsets.all(32.0),
+            child: Image.asset('assets/logos/ClassNexus-logo.png'),
           ),
           const Divider(),
           _AdminNavItem(
@@ -76,6 +71,19 @@ class _AdminSidebar extends StatelessWidget {
             label: 'ALUMNOS',
             isActive: currentPath.startsWith('/admin/students'),
             onTap: () => context.go('/admin/students'),
+          ),
+          const Divider(),
+          _AdminNavItem(
+            icon: Icons.auto_stories,
+            label: 'CICLOS',
+            isActive: currentPath.startsWith('/admin/cycles'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminCyclesListPage())),
+          ),
+          _AdminNavItem(
+            icon: Icons.book,
+            label: 'ASIGNATURAS',
+            isActive: currentPath.startsWith('/admin/subjects'),
+            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSubjectsListPage())),
           ),
           const Spacer(),
           const Divider(),
@@ -114,18 +122,23 @@ class _AdminNavItem extends StatelessWidget {
         ? Theme.of(context).colorScheme.primary 
         : Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
 
-    return ListTile(
-      leading: Icon(icon, color: color),
-      title: Text(
-        label,
-        style: TextStyle(
-          fontWeight: isActive ? FontWeight.bold : FontWeight.w600, 
-          fontSize: 13,
-          color: color,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        leading: Icon(icon, color: color, size: 22),
+        title: Text(
+          label,
+          style: TextStyle(
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w600, 
+            fontSize: 13,
+            color: color,
+          ),
         ),
+        selected: isActive,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        selectedTileColor: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+        onTap: onTap,
       ),
-      selected: isActive,
-      onTap: onTap,
     );
   }
 }

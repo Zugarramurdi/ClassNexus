@@ -11,6 +11,7 @@ class ProfileData {
   final int? roleId;
   final int? centerId;
   final String? tutorId;
+  final List<int>? teachingSubjects;
   final Map<String, dynamic>? role;
 
   ProfileData({
@@ -22,10 +23,19 @@ class ProfileData {
     this.roleId,
     this.centerId,
     this.tutorId,
+    this.teachingSubjects,
     this.role,
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
+    // Extraer IDs de asignaturas si vienen en el formato de Supabase join
+    List<int>? subjects;
+    if (json['teachingSubjects'] != null) {
+      subjects = (json['teachingSubjects'] as List)
+          .map((s) => int.parse(s['subject_id'].toString()))
+          .toList();
+    }
+
     return ProfileData(
       id: json['id'].toString(),
       firstName: json['first_name']?.toString(),
@@ -35,6 +45,7 @@ class ProfileData {
       roleId: json['role_id'] != null ? int.tryParse(json['role_id'].toString()) : null,
       centerId: json['center_id'] != null ? int.tryParse(json['center_id'].toString()) : null,
       tutorId: json['tutor_id']?.toString(),
+      teachingSubjects: subjects,
       role: json['role'] as Map<String, dynamic>?,
     );
   }
