@@ -15,6 +15,8 @@ class AdminController extends Controller
      */
     public function storeUser(Request $request)
     {
+        Log::info('Datos recibidos para creación de usuario:', $request->all());
+
         // 1. Verificar que quien llama es Admin
         $callerId = $request->attributes->get('supabase_user_id');
         $admin = Profile::find($callerId);
