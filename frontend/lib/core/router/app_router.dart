@@ -7,6 +7,12 @@ import 'package:frontend/features/subjects/presentation/subjects_screen.dart';
 import 'package:frontend/features/subjects/presentation/subject_detail_screen.dart';
 import 'package:frontend/features/subjects/presentation/task_detail_screen.dart';
 import 'package:frontend/features/subjects/models/assignment_data.dart';
+import 'package:frontend/features/admin/presentation/admin_shell.dart';
+import 'package:frontend/features/admin/presentation/centers/centers_screen.dart';
+import 'package:frontend/features/admin/presentation/centers/center_form_page.dart';
+import 'package:frontend/features/admin/presentation/users/teachers_screen.dart';
+import 'package:frontend/features/admin/presentation/users/students_screen.dart';
+import 'package:frontend/features/admin/presentation/users/user_form_page.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -33,6 +39,36 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      ShellRoute(
+        builder: (context, state, child) => AdminShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/admin/centers',
+            builder: (context, state) => const CentersScreen(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const CenterFormPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/admin/teachers',
+            builder: (context, state) => const TeachersScreen(),
+          ),
+          GoRoute(
+            path: '/admin/students',
+            builder: (context, state) => const StudentsScreen(),
+          ),
+          GoRoute(
+            path: '/admin/users/new',
+            builder: (context, state) {
+              final roleId = int.tryParse(state.uri.queryParameters['role'] ?? '2') ?? 2;
+              return UserFormPage(roleId: roleId);
+            },
+          ),
+        ],
       ),
       GoRoute(
         path: '/subjects',

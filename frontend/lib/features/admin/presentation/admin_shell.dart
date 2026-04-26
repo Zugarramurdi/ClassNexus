@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AdminShell extends StatelessWidget {
   final Widget child;
@@ -9,22 +10,24 @@ class AdminShell extends StatelessWidget {
   Widget build(BuildContext context) {
     // Definimos el breakpoint para escritorio
     final isDesktop = MediaQuery.of(context).size.width >= 900;
+    final location = GoRouterState.of(context).uri.path;
 
     return Scaffold(
       body: Row(
         children: [
           if (isDesktop)
-            const _AdminSidebar(),
+            _AdminSidebar(currentPath: location),
           Expanded(child: child),
         ],
       ),
-      bottomNavigationBar: isDesktop ? null : const _AdminBottomNav(),
+      bottomNavigationBar: isDesktop ? null : _AdminBottomNav(currentPath: location),
     );
   }
 }
 
 class _AdminSidebar extends StatelessWidget {
-  const _AdminSidebar();
+  final String currentPath;
+  const _AdminSidebar({required this.currentPath});
 
   @override
   Widget build(BuildContext context) {
@@ -56,18 +59,30 @@ class _AdminSidebar extends StatelessWidget {
           _AdminNavItem(
             icon: Icons.business,
             label: 'CENTROS',
-            onTap: () {},
+            isActive: currentPath.startsWith('/admin/centers'),
+            onTap: () => context.go('/admin/centers'),
           ),
           _AdminNavItem(
             icon: Icons.school,
             label: 'PROFESORES',
-            onTap: () {},
+            isActive: currentPath.startsWith('/admin/teachers'),
+            onTap: () => context.go('/admin/teachers'),
           ),
           _AdminNavItem(
             icon: Icons.person,
             label: 'ALUMNOS',
-            onTap: () {},
+            isActive: currentPath.startsWith('/admin/students'),
+            onTap: () => context.go('/admin/students'),
           ),
+          const Spacer(),
+          const Divider(),
+          _AdminNavItem(
+            icon: Icons.logout,
+            label: 'CERRAR SESIÓN',
+            isActive: false,
+            onTap: () => context.go('/'),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
@@ -77,34 +92,58 @@ class _AdminSidebar extends StatelessWidget {
 class _AdminNavItem extends StatelessWidget {
   final IconData icon;
   final String label;
+  final bool isActive;
   final VoidCallback onTap;
 
   const _AdminNavItem({
     required this.icon,
     required this.label,
+    required this.isActive,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final color = isActive 
+        ? Theme.of(context).colorScheme.primary 
+        : Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
+
     return ListTile(
-      leading: Icon(icon),
+      leading: Icon(icon, color: color),
       title: Text(
         label,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+        style: TextStyle(
+          fontWeight: isActive ? FontWeight.bold : FontWeight.w600, 
+          fontSize: 13,
+          color: color,
+        ),
       ),
+      selected: isActive,
       onTap: onTap,
     );
   }
 }
 
 class _AdminBottomNav extends StatelessWidget {
-  const _AdminBottomNav();
+  final String currentPath;
+  const _AdminBottomNav({required this.currentPath});
+
+  int _getSelectedIndex() {
+    if (currentPath.startsWith('/admin/centers')) return 0;
+    if (currentPath.startsWith('/admin/teachers')) return 1;
+    if (currentPath.startsWith('/admin/students')) return 2;
+    return 0;
+  }
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: 0,
+      currentIndex: _getSelectedIndex(),
+      onTap: (index) {
+        if (index == 0) context.go('/admin/centers');
+        if (index == 1) context.go('/admin/teachers');
+        if (index == 2) context.go('/admin/students');
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.business), label: 'CENTROS'),
         BottomNavigationBarItem(icon: Icon(Icons.school), label: 'PROFESORES'),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:frontend/core/widgets/responsive_layout.dart';
 import 'package:frontend/features/auth/providers/auth_provider.dart';
 
@@ -177,6 +178,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                 )
                               : const Text('Iniciar Sesión'),
+                        ),
+                        const SizedBox(height: 24),
+                        Center(
+                          child: TextButton(
+                            onPressed: () => context.go('/admin/centers'),
+                            child: Text(
+                              'MODO ADMINISTRACIÓN (BYPASS)',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
