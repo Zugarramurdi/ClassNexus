@@ -19,6 +19,7 @@ class Profile extends Model
         'first_name',
         'last_name',
         'avatar_url',
+        'email',
         'role_id',
         'center_id',
     ];

@@ -89,6 +89,7 @@ class AdminController extends Controller
                 [
                     'first_name' => $request->first_name,
                     'last_name' => $request->last_name,
+                    'email' => $request->email,
                     'role_id' => $request->role_id,
                     'center_id' => $request->center_id,
                 ]
@@ -149,6 +150,8 @@ class AdminController extends Controller
      */
     public function storeCenter(Request $request)
     {
+        Log::info('Datos recibidos para creación de centro:', $request->all());
+
         $callerId = $request->attributes->get('supabase_user_id');
         $admin = Profile::find($callerId);
 
