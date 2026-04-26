@@ -82,15 +82,17 @@ class AdminController extends Controller
         $userData = $response->json();
         $newUserId = $userData['id'];
 
-        // 3. Crear el perfil en la tabla pública
+        // 3. Crear o actualizar el perfil en la tabla pública
         try {
-            $profile = Profile::create([
-                'id' => $newUserId,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'role_id' => $request->role_id,
-                'center_id' => $request->center_id,
-            ]);
+            $profile = Profile::updateOrCreate(
+                ['id' => $newUserId],
+                [
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'role_id' => $request->role_id,
+                    'center_id' => $request->center_id,
+                ]
+            );
         } catch (\Exception $e) {
             Log::error('Error creando perfil en DB tras crear usuario en Auth', [
                 'user_id' => $newUserId,
