@@ -7,6 +7,7 @@ class ProfileData {
   final String? firstName;
   final String? lastName;
   final String? avatarUrl;
+  final String? email;
   final int? roleId;
   final Map<String, dynamic>? role;
 
@@ -15,6 +16,7 @@ class ProfileData {
     this.firstName,
     this.lastName,
     this.avatarUrl,
+    this.email,
     this.roleId,
     this.role,
   });
@@ -25,6 +27,7 @@ class ProfileData {
       firstName: json['first_name']?.toString(),
       lastName: json['last_name']?.toString(),
       avatarUrl: json['avatar_url']?.toString(),
+      email: json['email']?.toString(),
       roleId: json['role_id'] != null ? int.tryParse(json['role_id'].toString()) : null,
       role: json['role'] as Map<String, dynamic>?,
     );
