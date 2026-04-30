@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/admin/providers/admin_users_provider.dart';
@@ -125,10 +126,12 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
+  late final TextEditingController _passwordController;
   int? _selectedCenterId;
   int? _selectedCycleId;
   String? _selectedTutorId;
   List<int> _selectedSubjectIds = [];
+  bool _obscurePassword = true;
   bool _isLoading = false;
 
   @override
@@ -137,6 +140,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
     _emailController = TextEditingController(text: widget.user?.email);
     _firstNameController = TextEditingController(text: widget.user?.firstName);
     _lastNameController = TextEditingController(text: widget.user?.lastName);
+    _passwordController = TextEditingController();
     _selectedCenterId = widget.user?.centerId;
     _selectedCycleId = widget.user?.cycleId;
     _selectedTutorId = widget.user?.tutorId;
@@ -148,7 +152,17 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
     _emailController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  void _generatePassword() {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    final rand = math.Random();
+    final password = List.generate(12, (index) => chars[rand.nextInt(chars.length)]).join();
+    setState(() {
+      _passwordController.text = password;
+    });
   }
 
   bool get _isEditing => widget.user != null;
@@ -205,7 +219,35 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                       ),
                       validator: (v) => v!.isEmpty ? 'Por favor, introduce los apellidos' : null,
                     ),
-                    const SizedBox(height: 16),
+                    if (!_isEditing) ...[
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              decoration: InputDecoration(
+                                labelText: 'Contraseña Inicial',
+                                prefixIcon: const Icon(Icons.lock_outline),
+                                suffixIcon: IconButton(
+                                  icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                                ),
+                              ),
+                              validator: (v) => (!_isEditing && v!.isEmpty) ? 'Por favor, introduce una contraseña' : null,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton.icon(
+                            onPressed: _generatePassword,
+                            icon: const Icon(Icons.autorenew),
+                            label: const Text('Generar'),
+                          ),
+                        ],
+                      ),
+                    ],
+                    const SizedBox(height: 24),
                     _CenterDropdown(
                       selectedId: _selectedCenterId,
                       onChanged: (id) {
@@ -294,6 +336,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
             firstName: _firstNameController.text,
             lastName: _lastNameController.text,
             roleId: widget.roleId,
+            password: _passwordController.text,
             centerId: _selectedCenterId,
             cycleId: _selectedCycleId,
             tutorId: _selectedTutorId,

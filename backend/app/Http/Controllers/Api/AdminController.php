@@ -30,6 +30,7 @@ class AdminController extends Controller
             'first_name' => 'required|string',
             'last_name' => 'required|string',
             'role_id' => 'required|integer',
+            'password' => 'required|string|min:6',
             'center_id' => 'nullable|integer',
             'tutor_id' => 'nullable|uuid',
             'cycle_id' => 'nullable|integer',
@@ -57,7 +58,7 @@ class AdminController extends Controller
                 'apikey' => $serviceRoleKey,
             ])->post($supabaseUrl . '/auth/v1/admin/users', [
                 'email' => $request->email,
-                'password' => 'ClassNexus2024!', // Contraseña temporal
+                'password' => $request->password,
                 'email_confirm' => true,
                 'user_metadata' => [
                     'first_name' => $request->first_name,
