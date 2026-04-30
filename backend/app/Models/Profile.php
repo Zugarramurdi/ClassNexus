@@ -41,6 +41,11 @@ class Profile extends Model
         return $this->belongsToMany(Group::class);
     }
 
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'profile_subject');
+    }
+
     public function teachingSubjects()
     {
         return $this->belongsToMany(Subject::class, 'profile_subject');
