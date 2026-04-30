@@ -23,7 +23,14 @@ class Subject extends Model
 
     public function teachers()
     {
-        return $this->belongsToMany(Profile::class, 'profile_subject');
+        return $this->belongsToMany(Profile::class, 'profile_subject')
+                    ->whereIn('role_id', [1, 2]);
+    }
+
+    public function students()
+    {
+        return $this->belongsToMany(Profile::class, 'profile_subject')
+                    ->where('role_id', 3);
     }
 
     public function cycles()

@@ -42,8 +42,7 @@ class SubjectController extends Controller
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error en SubjectController@index: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Error interno del servidor',
-                'debug' => $e->getMessage()
+                'message' => 'Error interno del servidor'
             ], 500);
         }
     }
