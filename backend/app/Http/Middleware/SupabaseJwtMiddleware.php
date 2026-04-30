@@ -52,7 +52,7 @@ class SupabaseJwtMiddleware
 
             // Store the authenticated user's ID in the request
             // Supabase stores user ID in the 'sub' claim
-            $request->attributes->add(['supabase_user_id' => $decoded->sub]);
+            $request->merge(['supabase_user_id' => $decoded->sub]);
 
         } catch (Exception $e) {
             return response()->json(['error' => 'Invalid token.', 'message' => $e->getMessage()], 401);

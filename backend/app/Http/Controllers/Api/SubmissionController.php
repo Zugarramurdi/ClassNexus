@@ -34,7 +34,7 @@ class SubmissionController extends Controller
             'student_comment' => 'nullable|string'
         ]);
 
-        $userId = $request->attributes->get('supabase_user_id');
+        $userId = $request->input('supabase_user_id');
         
         if (!$userId) {
             return response()->json(['error' => 'No autorizado'], 401);

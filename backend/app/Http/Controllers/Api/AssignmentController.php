@@ -13,7 +13,7 @@ class AssignmentController extends Controller
      */
     public function index(Request $request, $subject_id)
     {
-        $userId = $request->attributes->get('supabase_user_id');
+        $userId = $request->input('supabase_user_id');
 
         $assignments = Assignment::where('subject_id', $subject_id)
             ->withCount('submissions')

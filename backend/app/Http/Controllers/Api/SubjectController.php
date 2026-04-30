@@ -15,7 +15,7 @@ class SubjectController extends Controller
     public function index(Request $request)
     {
         try {
-            $userId = $request->attributes->get('supabase_user_id');
+            $userId = $request->input('supabase_user_id');
             
             if (!$userId) {
                 return response()->json(['error' => 'No autorizado'], 401);

@@ -10,7 +10,7 @@ class ProfileController extends Controller
 {
     public function me(Request $request)
     {
-        $userId = $request->attributes->get('supabase_user_id');
+        $userId = $request->input('supabase_user_id');
         $profile = Profile::with('role')->find($userId);
 
         if (!$profile) {
