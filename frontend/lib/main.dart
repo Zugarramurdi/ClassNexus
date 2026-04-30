@@ -9,13 +9,17 @@ import 'package:frontend/core/constants/env.dart';
 import 'package:frontend/core/theme/app_theme.dart';
 import 'package:frontend/core/router/app_router.dart';
 
+import 'package:frontend/core/utils/messenger.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  print('***** Supabase init started *****');
   await Supabase.initialize(
     url: Env.supabaseUrl,
     anonKey: Env.supabaseAnonKey,
   );
+  print('***** Supabase init completed *****');
 
   runApp(
     const ProviderScope(
@@ -33,6 +37,7 @@ class ClassNexusApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'ClassNexus',
+      scaffoldMessengerKey: messengerKey, // Registramos la clave global
       theme: AppTheme.lightTheme,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

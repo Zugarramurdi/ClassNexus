@@ -7,12 +7,15 @@ import 'package:frontend/features/subjects/presentation/subjects_screen.dart';
 import 'package:frontend/features/subjects/presentation/subject_detail_screen.dart';
 import 'package:frontend/features/subjects/presentation/task_detail_screen.dart';
 import 'package:frontend/features/subjects/models/assignment_data.dart';
+import 'package:frontend/features/subjects/presentation/assignment_submissions_screen.dart';
 import 'package:frontend/features/admin/presentation/admin_shell.dart';
 import 'package:frontend/features/admin/presentation/centers/centers_screen.dart';
 import 'package:frontend/features/admin/presentation/centers/center_form_page.dart';
 import 'package:frontend/features/admin/presentation/users/teachers_screen.dart';
 import 'package:frontend/features/admin/presentation/users/students_screen.dart';
 import 'package:frontend/features/admin/presentation/users/user_form_page.dart';
+import 'package:frontend/features/profile/presentation/profile_screen.dart';
+import 'package:frontend/features/dashboard/presentation/main_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -26,7 +29,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isLoggingIn = state.uri.path == '/';
       final isAdminPath = state.uri.path.startsWith('/admin');
 
-      // Permitir el acceso a rutas de admin si se solicita explícitamente (Bypass)
       if (isAdminPath) return null;
 
       if (!isAuth && !isLoggingIn) return '/';
@@ -39,10 +41,59 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/',
         builder: (context, state) => const LoginScreen(),
       ),
-      GoRoute(
-        path: '/dashboard',
-        builder: (context, state) => const DashboardScreen(),
+      // Shell para las rutas principales de usuario
+      ShellRoute(
+        builder: (context, state, child) => MainShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/dashboard',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: DashboardScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/profile',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ProfileScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/subjects',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: SubjectsScreen(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':id',
+                pageBuilder: (context, state) => NoTransitionPage(
+                  child: SubjectDetailScreen(
+                    subjectId: state.pathParameters['id']!,
+                  ),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'tasks/:taskId',
+                    pageBuilder: (context, state) => NoTransitionPage(
+                      child: TaskDetailScreen(
+                        assignment: state.extra as AssignmentData,
+                      ),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'submissions/:assignmentId',
+                    pageBuilder: (context, state) => NoTransitionPage(
+                      child: AssignmentSubmissionsScreen(
+                        assignment: state.extra as AssignmentData,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
+      // Shell para Admin
       ShellRoute(
         builder: (context, state, child) => AdminShell(child: child),
         routes: [
@@ -70,26 +121,6 @@ final routerProvider = Provider<GoRouter>((ref) {
               final roleId = int.tryParse(state.uri.queryParameters['role'] ?? '2') ?? 2;
               return UserFormPage(roleId: roleId);
             },
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/subjects',
-        builder: (context, state) => const SubjectsScreen(),
-        routes: [
-          GoRoute(
-            path: ':id',
-            builder: (context, state) => SubjectDetailScreen(
-              subjectId: state.pathParameters['id']!,
-            ),
-            routes: [
-              GoRoute(
-                path: 'tasks/:taskId',
-                builder: (context, state) => TaskDetailScreen(
-                  assignment: state.extra as AssignmentData,
-                ),
-              ),
-            ],
           ),
         ],
       ),

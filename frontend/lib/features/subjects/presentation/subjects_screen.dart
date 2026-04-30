@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:frontend/features/subjects/providers/subjects_provider.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/core/widgets/nexus_card.dart';
+import 'package:frontend/core/widgets/responsive_layout.dart';
+import 'package:frontend/core/widgets/nexus_sidebar.dart';
 
 class SubjectsScreen extends ConsumerWidget {
   const SubjectsScreen({super.key});
@@ -13,52 +15,85 @@ class SubjectsScreen extends ConsumerWidget {
     final subjectsAsync = ref.watch(subjectsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mis Asignaturas'),
-      ),
       body: subjectsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error: $err', style: const TextStyle(color: Colors.red)),
-              TextButton(
-                onPressed: () => ref.refresh(subjectsProvider), 
-                child: const Text('Reintentar')
-              )
-            ],
-          ),
-        ),
+        error: (err, stack) => Center(child: Text('Error: $err')),
         data: (subjects) {
-          if (subjects.isEmpty) {
-            return const Center(child: Text('No hay asignaturas disponibles.'));
-          }
-
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              int columns = constraints.maxWidth > 1200 ? 4 : constraints.maxWidth > 800 ? 3 : constraints.maxWidth > 600 ? 2 : 1;
-              
-              return GridView.builder(
-                padding: const EdgeInsets.all(24),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 2.2, 
-                ),
-                itemCount: subjects.length,
-                itemBuilder: (context, index) {
-                  final subject = subjects[index];
-                  return _SubjectCard(subject: subject);
-                },
-              );
-            },
+          return ResponsiveLayout(
+            mobile: _SubjectsMobile(subjects: subjects),
+            desktop: _SubjectsDesktop(subjects: subjects),
           );
         },
       ),
+    );
+  }
+}
+
+class _SubjectsDesktop extends StatelessWidget {
+  final List<dynamic> subjects;
+  const _SubjectsDesktop({required this.subjects});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(40, 40, 40, 0),
+          child: Text(
+            'Mis Asignaturas',
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _SubjectsGrid(subjects: subjects),
+        ),
+      ],
+    );
+  }
+}
+
+class _SubjectsMobile extends StatelessWidget {
+  final List<dynamic> subjects;
+  const _SubjectsMobile({required this.subjects});
+
+  @override
+  Widget build(BuildContext context) {
+    return _SubjectsGrid(subjects: subjects);
+  }
+}
+
+class _SubjectsGrid extends StatelessWidget {
+  final List<dynamic> subjects;
+  const _SubjectsGrid({required this.subjects});
+
+  @override
+  Widget build(BuildContext context) {
+    if (subjects.isEmpty) {
+      return const Center(child: Text('No hay asignaturas disponibles.'));
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        int columns = constraints.maxWidth > 1200 ? 4 : constraints.maxWidth > 800 ? 3 : constraints.maxWidth > 600 ? 2 : 1;
+        
+        return GridView.builder(
+          padding: const EdgeInsets.all(24),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: columns,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 2.2, 
+          ),
+          itemCount: subjects.length,
+          itemBuilder: (context, index) {
+            final subject = subjects[index];
+            return _SubjectCard(subject: subject);
+          },
+        );
+      },
     );
   }
 }

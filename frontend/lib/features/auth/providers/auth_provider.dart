@@ -35,6 +35,17 @@ class AuthNotifier extends AsyncNotifier<void> {
   Future<void> signOut() async {
     await ref.read(supabaseClientProvider).auth.signOut();
   }
+
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      final client = ref.read(supabaseClientProvider);
+      await client.auth.updateUser(UserAttributes(password: newPassword));
+      // No actualizamos el estado global para evitar refrescos de la app durante el proceso del diálogo
+    } catch (e, st) {
+      state = AsyncError(e, st);
+      rethrow;
+    }
+  }
 }
 
 final authNotifierProvider = AsyncNotifierProvider<AuthNotifier, void>(() {

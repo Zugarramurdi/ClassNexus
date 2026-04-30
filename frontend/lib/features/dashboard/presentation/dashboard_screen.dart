@@ -7,6 +7,7 @@ import 'package:frontend/features/auth/providers/auth_provider.dart';
 import 'package:frontend/features/profile/providers/profile_provider.dart';
 import 'package:frontend/features/subjects/providers/subjects_provider.dart';
 import 'package:frontend/core/theme/app_colors.dart';
+import 'package:frontend/core/widgets/nexus_sidebar.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -50,54 +51,21 @@ class _DashboardDesktop extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
-      children: [
-        // Sidebar Lateral
-        Container(
-          width: 260,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.02),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Image.asset('assets/logos/ClassNexus-logo.png'),
-              ),
-              const SizedBox(height: 16),
-              _SidebarItem(icon: Icons.dashboard_outlined, label: 'Dashboard', isActive: true, onTap: () {}),
-              _SidebarItem(icon: Icons.school_outlined, label: 'Asignaturas', onTap: () => context.push('/subjects')),
-              _SidebarItem(icon: Icons.calendar_today_outlined, label: 'Horario', onTap: () {}),
-              _SidebarItem(icon: Icons.chat_bubble_outline, label: 'Mensajes', onTap: () {}),
-              const Spacer(),
-              _SidebarItem(
-                icon: Icons.logout, 
-                label: 'Cerrar Sesión', 
-                onTap: () => ref.read(authNotifierProvider.notifier).signOut()
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-        
-        // Contenido Principal
-        Expanded(
-          child: CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(40.0),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _DashboardHeader(profile: profile),
-                    const SizedBox(height: 40),
-                    if (isTeacher) 
-                      _TeacherStatsGrid()
-                    else 
-                      _StudentSubjectsGrid(),
-                    const SizedBox(height: 40),
-                    _RecentActivitySection(),
-                  ]),
-                ),
-              ),
-            ],
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(40.0),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate([
+              _DashboardHeader(profile: profile),
+              const SizedBox(height: 40),
+              if (isTeacher) 
+                _TeacherStatsGrid()
+              else 
+                _StudentSubjectsGrid(),
+              const SizedBox(height: 40),
+              _RecentActivitySection(),
+            ]),
           ),
         ),
       ],
@@ -113,31 +81,20 @@ class _DashboardMobile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Image.asset('assets/logos/ClassNexus-logo-2.png', height: 32),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authNotifierProvider.notifier).signOut(),
-          ),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _DashboardHeader(profile: profile),
+          const SizedBox(height: 32),
+          if (isTeacher) 
+            _TeacherStatsGrid()
+          else 
+            _StudentSubjectsGrid(),
+          const SizedBox(height: 32),
+          _RecentActivitySection(),
         ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _DashboardHeader(profile: profile),
-            const SizedBox(height: 32),
-            if (isTeacher) 
-              _TeacherStatsGrid()
-            else 
-              _StudentSubjectsGrid(),
-            const SizedBox(height: 32),
-            _RecentActivitySection(),
-          ],
-        ),
       ),
     );
   }
@@ -242,46 +199,7 @@ class _TeacherStatsGrid extends StatelessWidget {
   }
 }
 
-class _SidebarItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _SidebarItem({
-    required this.icon,
-    required this.label,
-    this.isActive = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
-    
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: isActive ? Theme.of(context).colorScheme.primary.withOpacity(0.1) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: color, size: 24),
-              const SizedBox(width: 16),
-              Text(label, style: TextStyle(color: color, fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _SidebarItem movido a core/widgets/nexus_sidebar.dart
 
 class _SubjectCard extends StatelessWidget {
   final String title;
