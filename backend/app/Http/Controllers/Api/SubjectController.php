@@ -14,31 +14,37 @@ class SubjectController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->attributes->get('supabase_user_id');
-        
-        if (!$userId) {
-            return response()->json(['error' => 'No autorizado'], 401);
+        try {
+            $userId = $request->attributes->get('supabase_user_id');
+            
+            if (!$userId) {
+                return response()->json(['error' => 'No autorizado'], 401);
+            }
+
+            $profile = \App\Models\Profile::with('role')->find($userId);
+
+            if (!$profile || !$profile->role) {
+                return response()->json([], 200); 
+            }
+
+            $roleName = strtolower($profile->role->name);
+
+            if ($roleName === 'teacher') {
+                $subjects = $profile->teachingSubjects()->with(['center', 'teachers'])->get();
+            } elseif ($roleName === 'student') {
+                $subjects = $profile->subjects()->with(['center', 'teachers'])->get();
+            } else {
+                $subjects = Subject::with(['center', 'teachers'])->get();
+            }
+
+            return response()->json($subjects, 200);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error en SubjectController@index: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error interno del servidor',
+                'debug' => $e->getMessage()
+            ], 500);
         }
-
-        $profile = \App\Models\Profile::with('role')->find($userId);
-
-        if (!$profile || !$profile->role) {
-            return response()->json([], 200); // Si no tiene rol, no devolvemos datos
-        }
-
-        $roleName = strtolower($profile->role->name);
-
-        if ($roleName === 'teacher') {
-            // Los docentes obtienen las asignaturas en las que están explícitamente asignados
-            $subjects = $profile->teachingSubjects()->with(['center', 'teachers'])->get();
-        } elseif ($roleName === 'student') {
-            // Los estudiantes obtienen las asignaturas en las que están matriculados
-            $subjects = $profile->subjects()->with(['center', 'teachers'])->get();
-        } else {
-            // Administradores y otros roles ven todo el catálogo
-            $subjects = Subject::with(['center', 'teachers'])->get();
-        }
-
-        return response()->json($subjects, 200);
     }
 }
