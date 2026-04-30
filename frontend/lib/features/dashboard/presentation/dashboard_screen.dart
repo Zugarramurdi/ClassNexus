@@ -5,6 +5,7 @@ import 'package:frontend/core/widgets/nexus_card.dart';
 import 'package:frontend/core/widgets/responsive_layout.dart';
 import 'package:frontend/features/auth/providers/auth_provider.dart';
 import 'package:frontend/features/profile/providers/profile_provider.dart';
+import 'package:frontend/features/subjects/providers/subjects_provider.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -168,26 +169,53 @@ class _DashboardHeader extends StatelessWidget {
   }
 }
 
-class _StudentSubjectsGrid extends StatelessWidget {
+class _StudentSubjectsGrid extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subjectsAsync = ref.watch(subjectsProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Tus Asignaturas', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: ResponsiveLayout.isDesktop(context) ? 3 : 1,
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
-          childAspectRatio: 2.5,
-          children: [
-            _SubjectCard(title: 'Programación Multimedia', subtitle: '2º DAM', color: Colors.teal),
-            _SubjectCard(title: 'Desarrollo de Interfaces', subtitle: '2º DAM', color: Colors.indigo),
-            _SubjectCard(title: 'Acceso a Datos', subtitle: '2º DAM', color: Colors.orange),
-          ],
+        subjectsAsync.when(
+          data: (subjects) {
+            if (subjects.isEmpty) {
+              return const NexusCard(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('No tienes asignaturas matriculadas todavía.'),
+                ),
+              );
+            }
+
+            // Mostramos un máximo de 3 en el dashboard
+            final displaySubjects = subjects.take(3).toList();
+
+            return GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: ResponsiveLayout.isDesktop(context) ? 3 : 1,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 2.5,
+              children: displaySubjects.asMap().entries.map((entry) {
+                final index = entry.key;
+                final s = entry.value;
+                final colors = [AppColors.primary, Colors.indigo, Colors.orange, Colors.teal, Colors.purple];
+                
+                return _SubjectCard(
+                  title: s.name,
+                  subtitle: s.center?['name'] ?? 'General',
+                  color: colors[index % colors.length],
+                  onTap: () => context.push('/subjects/${s.id}'),
+                );
+              }).toList(),
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (err, _) => Text('Error al cargar asignaturas: $err'),
         ),
       ],
     );
@@ -259,13 +287,14 @@ class _SubjectCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color color;
+  final VoidCallback? onTap;
 
-  const _SubjectCard({required this.title, required this.subtitle, required this.color});
+  const _SubjectCard({required this.title, required this.subtitle, required this.color, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return NexusCard(
-      onTap: () {},
+      onTap: onTap,
       child: Row(
         children: [
           Container(

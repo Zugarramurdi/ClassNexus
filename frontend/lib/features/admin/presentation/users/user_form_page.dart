@@ -157,7 +157,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
   }
 
   void _generatePassword() {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#\$%^&*';
     final rand = math.Random();
     final password = List.generate(12, (index) => chars[rand.nextInt(chars.length)]).join();
     setState(() {

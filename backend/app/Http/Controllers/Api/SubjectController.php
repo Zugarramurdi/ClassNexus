@@ -32,12 +32,8 @@ class SubjectController extends Controller
             // Los docentes obtienen las asignaturas en las que están explícitamente asignados
             $subjects = $profile->teachingSubjects()->with(['center', 'teachers'])->get();
         } elseif ($roleName === 'student') {
-            // Los estudiantes obtienen asignaturas derivadas de los grupos a los que pertenecen
-            $groupIds = $profile->groups()->pluck('groups.id');
-            
-            $subjects = Subject::whereHas('groups', function($q) use ($groupIds) {
-                $q->whereIn('groups.id', $groupIds);
-            })->with(['center', 'teachers'])->distinct()->get();
+            // Los estudiantes obtienen las asignaturas en las que están matriculados
+            $subjects = $profile->subjects()->with(['center', 'teachers'])->get();
         } else {
             // Administradores y otros roles ven todo el catálogo
             $subjects = Subject::with(['center', 'teachers'])->get();
