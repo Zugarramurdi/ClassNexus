@@ -32,6 +32,7 @@ class AdminController extends Controller
             'role_id' => 'required|integer',
             'center_id' => 'nullable|integer',
             'tutor_id' => 'nullable|uuid',
+            'cycle_id' => 'nullable|integer',
             'subject_ids' => 'nullable|array',
             'subject_ids.*' => 'integer',
         ]);
@@ -96,6 +97,7 @@ class AdminController extends Controller
                     'role_id' => $request->role_id,
                     'center_id' => $request->center_id,
                     'tutor_id' => $request->tutor_id,
+                    'cycle_id' => $request->cycle_id,
                 ]
             );
             // 4. Sincronizar asignaturas si es profesor
@@ -137,6 +139,7 @@ class AdminController extends Controller
             'last_name' => 'required|string',
             'center_id' => 'nullable|integer',
             'tutor_id' => 'nullable|uuid',
+            'cycle_id' => 'nullable|integer',
             'subject_ids' => 'nullable|array',
             'subject_ids.*' => 'integer',
         ]);
@@ -148,6 +151,7 @@ class AdminController extends Controller
                 'last_name' => $request->last_name,
                 'center_id' => $request->center_id,
                 'tutor_id' => $request->tutor_id,
+                'cycle_id' => $request->cycle_id,
             ]);
             
             // Sincronizar asignaturas si se envían

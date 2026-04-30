@@ -10,6 +10,7 @@ class ProfileData {
   final String? email;
   final int? roleId;
   final int? centerId;
+  final int? cycleId;
   final String? tutorId;
   final List<int>? teachingSubjects;
   final Map<String, dynamic>? role;
@@ -22,6 +23,7 @@ class ProfileData {
     this.email,
     this.roleId,
     this.centerId,
+    this.cycleId,
     this.tutorId,
     this.teachingSubjects,
     this.role,
@@ -44,6 +46,7 @@ class ProfileData {
       email: json['email']?.toString(),
       roleId: json['role_id'] != null ? int.tryParse(json['role_id'].toString()) : null,
       centerId: json['center_id'] != null ? int.tryParse(json['center_id'].toString()) : null,
+      cycleId: json['cycle_id'] != null ? int.tryParse(json['cycle_id'].toString()) : null,
       tutorId: json['tutor_id']?.toString(),
       teachingSubjects: subjects,
       role: json['role'] as Map<String, dynamic>?,

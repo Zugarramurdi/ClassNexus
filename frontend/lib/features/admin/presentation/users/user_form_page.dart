@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/features/admin/providers/admin_users_provider.dart';
 import 'package:frontend/features/admin/providers/centers_provider.dart';
+import 'package:frontend/features/admin/providers/cycles_provider.dart';
 import 'package:frontend/features/profile/providers/profile_provider.dart';
 import 'package:frontend/features/subjects/providers/subjects_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -85,12 +86,47 @@ class _TutorDropdown extends ConsumerWidget {
   }
 }
 
+class _CycleDropdown extends ConsumerWidget {
+  final int? centerId;
+  final int? selectedId;
+  final ValueChanged<int?> onChanged;
+
+  const _CycleDropdown({required this.centerId, required this.selectedId, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (centerId == null) return const SizedBox.shrink();
+    final cyclesAsync = ref.watch(cyclesProvider);
+    
+    return cyclesAsync.when(
+      data: (cycles) {
+        final centerCycles = cycles.where((c) => c.centerId == centerId).toList();
+        return DropdownButtonFormField<int>(
+          value: selectedId,
+          decoration: const InputDecoration(
+            labelText: 'Ciclo Formativo',
+            prefixIcon: Icon(Icons.history_edu),
+          ),
+          items: [
+            const DropdownMenuItem<int>(value: null, child: Text('Sin ciclo asignado')),
+            ...centerCycles.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
+          ],
+          onChanged: onChanged,
+        );
+      },
+      loading: () => const LinearProgressIndicator(),
+      error: (_, __) => const Text('Error al cargar ciclos'),
+    );
+  }
+}
+
 class _UserFormPageState extends ConsumerState<UserFormPage> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _emailController;
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   int? _selectedCenterId;
+  int? _selectedCycleId;
   String? _selectedTutorId;
   List<int> _selectedSubjectIds = [];
   bool _isLoading = false;
@@ -102,6 +138,7 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
     _firstNameController = TextEditingController(text: widget.user?.firstName);
     _lastNameController = TextEditingController(text: widget.user?.lastName);
     _selectedCenterId = widget.user?.centerId;
+    _selectedCycleId = widget.user?.cycleId;
     _selectedTutorId = widget.user?.tutorId;
     _selectedSubjectIds = widget.user?.teachingSubjects ?? [];
   }
@@ -186,11 +223,32 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
                         selectedId: _selectedTutorId,
                         onChanged: (id) => setState(() => _selectedTutorId = id),
                       ),
+                      const SizedBox(height: 16),
+                      _CycleDropdown(
+                        centerId: _selectedCenterId,
+                        selectedId: _selectedCycleId,
+                        onChanged: (id) {
+                          setState(() {
+                            _selectedCycleId = id;
+                            if (id != null) {
+                              // Auto-seleccionar asignaturas del ciclo
+                              final cycles = ref.read(cyclesProvider).value;
+                              if (cycles != null) {
+                                final cycle = cycles.firstWhere((c) => c.id == id);
+                                if (cycle.subjectIds != null) {
+                                  _selectedSubjectIds = List<int>.from(cycle.subjectIds!);
+                                }
+                              }
+                            }
+                          });
+                        },
+                      ),
                     ],
-                    if (widget.roleId == 2) ...[
+                    if (widget.roleId == 2 || widget.roleId == 3) ...[
                       const SizedBox(height: 16),
                       _SubjectSelector(
                         centerId: _selectedCenterId,
+                        roleId: widget.roleId,
                         selectedIds: _selectedSubjectIds,
                         onChanged: (ids) => setState(() => _selectedSubjectIds = ids),
                       ),
@@ -226,8 +284,9 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
             firstName: _firstNameController.text,
             lastName: _lastNameController.text,
             centerId: _selectedCenterId,
+            cycleId: _selectedCycleId,
             tutorId: _selectedTutorId,
-            subjectIds: widget.roleId == 2 ? _selectedSubjectIds : null,
+            subjectIds: _selectedSubjectIds,
           );
         } else {
           await ref.read(adminUsersProvider.notifier).createUser(
@@ -236,8 +295,9 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
             lastName: _lastNameController.text,
             roleId: widget.roleId,
             centerId: _selectedCenterId,
+            cycleId: _selectedCycleId,
             tutorId: _selectedTutorId,
-            subjectIds: widget.roleId == 2 ? _selectedSubjectIds : null,
+            subjectIds: _selectedSubjectIds,
           );
         }
         if (mounted) context.pop();
@@ -256,11 +316,13 @@ class _UserFormPageState extends ConsumerState<UserFormPage> {
 
 class _SubjectSelector extends ConsumerWidget {
   final int? centerId;
+  final int roleId;
   final List<int> selectedIds;
   final ValueChanged<List<int>> onChanged;
 
   const _SubjectSelector({
     required this.centerId,
+    required this.roleId,
     required this.selectedIds,
     required this.onChanged,
   });
@@ -285,7 +347,10 @@ class _SubjectSelector extends ConsumerWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Asignaturas que imparte', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Text(
+              roleId == 2 ? 'Asignaturas que imparte' : 'Asignaturas matriculadas', 
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,

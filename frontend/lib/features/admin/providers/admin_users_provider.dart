@@ -31,6 +31,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     required String lastName,
     required int roleId,
     int? centerId,
+    int? cycleId,
     String? tutorId,
     List<int>? subjectIds,
   }) async {
@@ -43,6 +44,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
         'last_name': lastName,
         'role_id': roleId,
         'center_id': centerId,
+        'cycle_id': cycleId,
         'tutor_id': tutorId,
         'subject_ids': subjectIds,
       });
@@ -59,6 +61,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
     required String firstName,
     required String lastName,
     int? centerId,
+    int? cycleId,
     String? tutorId,
     List<int>? subjectIds,
   }) async {
@@ -69,6 +72,7 @@ class AdminUsersNotifier extends AsyncNotifier<List<ProfileData>> {
         'first_name': firstName,
         'last_name': lastName,
         'center_id': centerId,
+        'cycle_id': cycleId,
         'tutor_id': tutorId,
         'subject_ids': subjectIds,
       });

@@ -23,11 +23,17 @@ class Profile extends Model
         'role_id',
         'center_id',
         'tutor_id',
+        'cycle_id',
     ];
 
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    public function cycle()
+    {
+        return $this->belongsTo(Cycle::class);
     }
 
     public function groups()
