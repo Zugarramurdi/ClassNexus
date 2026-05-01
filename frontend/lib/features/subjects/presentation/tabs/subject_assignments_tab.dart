@@ -193,21 +193,14 @@ class _SubjectAssignmentsTabState extends ConsumerState<SubjectAssignmentsTab> {
                               setModalState(() => selectedDate = picked);
                             }
                           },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(12),
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Fecha límite',
+                              prefixIcon: Icon(Icons.calendar_today_rounded, size: 18),
                             ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.calendar_today_rounded, size: 18, color: Colors.black54),
-                                const SizedBox(width: 10),
-                                Text(
-                                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
+                            child: Text(
+                              '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                              style: const TextStyle(fontSize: 14),
                             ),
                           ),
                         ),
@@ -495,15 +488,24 @@ class _SubjectAssignmentsTabState extends ConsumerState<SubjectAssignmentsTab> {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (assignments) {
-          if (assignments.isEmpty) {
+          final isRefreshing = assignmentsAsync.isRefreshing;
+
+          if (assignments.isEmpty && !isRefreshing) {
             return const Center(child: Text('No hay tareas pendientes en esta asignatura.'));
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(24),
-            itemCount: assignments.length,
-            itemBuilder: (context, index) {
-              final task = assignments[index];
+          return Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(assignmentsProvider(widget.subjectId));
+                  return ref.read(assignmentsProvider(widget.subjectId).future);
+                },
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(24),
+                  itemCount: assignments.length,
+                  itemBuilder: (context, index) {
+                    final task = assignments[index];
               final isOverdue = task.dueDate.isBefore(DateTime.now());
               final hasSubmitted = task.submissions != null && task.submissions!.isNotEmpty;
 
@@ -621,55 +623,85 @@ class _SubjectAssignmentsTabState extends ConsumerState<SubjectAssignmentsTab> {
                                 ],
                               ),
                             )
-                          else if (hasSubmitted && task.submissions!.first.score != null)
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                'Nota: ${task.submissions!.first.score} / ${task.maxScore}',
-                                style: const TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            )
-                          else
-                            const Text(
-                              'Abrir tarea',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
-                            ),
+                          else if (hasSubmitted) ...[
+                            (() {
+                              final gradedSubmission = task.submissions?.firstWhere(
+                                (s) => s.score != null,
+                                orElse: () => task.submissions!.first,
+                              );
+                              
+                              if (gradedSubmission?.score != null) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    'Nota: ${gradedSubmission!.score} / ${task.maxScore}',
+                                    style: const TextStyle(
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return const Text(
+                                  'Abrir tarea',
+                                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                                );
+                              }
+                            })(),
+                          ],
                         ],
                       ),
-                      if (!widget.isTeacher && hasSubmitted && task.submissions!.first.feedback != null) ...[
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.05),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Feedback del Profesor:', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
-                              Text(task.submissions!.first.feedback!),
-                            ],
-                          ),
-                        ),
-                      ],
+                      if (!widget.isTeacher && hasSubmitted)
+                        (() {
+                          final submissionWithFeedback = task.submissions?.firstWhere(
+                            (s) => s.feedback != null && s.feedback!.isNotEmpty,
+                            orElse: () => task.submissions!.first,
+                          );
+
+                          if (submissionWithFeedback?.feedback != null) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 12.0),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.05),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text('Feedback del Profesor:', 
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.green)),
+                                    Text(submissionWithFeedback!.feedback!),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        })(),
+
                     ],
                   ),
                 ),
               );
             },
-          );
-        },
-      ),
+          ),
+        ),
+        if (isRefreshing)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+      ],
+    );
+  },
+),
       floatingActionButton: widget.isTeacher
           ? FloatingActionButton.extended(
               onPressed: () => _showAddAssignmentDialog(context),

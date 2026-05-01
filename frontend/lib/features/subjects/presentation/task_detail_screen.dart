@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:frontend/core/widgets/nexus_card.dart';
 import 'package:frontend/core/widgets/responsive_layout.dart';
 import 'package:frontend/features/subjects/models/assignment_data.dart';
+import 'package:frontend/features/subjects/models/submission_data.dart';
 import 'package:frontend/features/subjects/providers/assignments_provider.dart';
 import 'package:frontend/features/subjects/providers/submissions_provider.dart';
 import 'package:frontend/features/auth/providers/auth_provider.dart';
@@ -126,7 +127,18 @@ class _TaskDetailScreenState extends ConsumerState<TaskDetailScreen> {
   Widget build(BuildContext context) {
     final hasSubmitted = widget.assignment.submissions != null && widget.assignment.submissions!.isNotEmpty;
     final isOverdue = widget.assignment.dueDate.isBefore(DateTime.now());
-    final submission = widget.assignment.submissions?.firstOrNull;
+    
+    // Priorizamos la entrega que tenga nota para mostrarla en el detalle
+    SubmissionData? submission;
+    if (widget.assignment.submissions != null && widget.assignment.submissions!.isNotEmpty) {
+      submission = widget.assignment.submissions!.firstWhere(
+        (s) => s.score != null,
+        orElse: () => widget.assignment.submissions!.firstWhere(
+          (s) => s.feedback != null,
+          orElse: () => widget.assignment.submissions!.first,
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
