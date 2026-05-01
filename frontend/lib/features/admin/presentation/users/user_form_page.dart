@@ -30,13 +30,17 @@ class _CenterDropdown extends ConsumerWidget {
     return centersAsync.when(
       data: (centers) => DropdownButtonFormField<int>(
         value: selectedId,
+        isExpanded: true,
         decoration: const InputDecoration(
           labelText: 'Centro',
           prefixIcon: Icon(Icons.business),
         ),
         items: centers.map((c) => DropdownMenuItem(
           value: c.id, 
-          child: Text(c.name)
+          child: Text(
+            c.name,
+            overflow: TextOverflow.ellipsis,
+          )
         )).toList(),
         onChanged: onChanged,
         validator: (v) => v == null ? 'Por favor, selecciona un centro' : null,
@@ -64,6 +68,7 @@ class _TutorDropdown extends ConsumerWidget {
         
         return DropdownButtonFormField<String>(
           value: selectedId,
+          isExpanded: true,
           decoration: const InputDecoration(
             labelText: 'Tutor asignado',
             prefixIcon: Icon(Icons.school),
@@ -75,7 +80,10 @@ class _TutorDropdown extends ConsumerWidget {
             ),
             ...teachers.map((t) => DropdownMenuItem(
               value: t.id, 
-              child: Text('${t.firstName} ${t.lastName}')
+              child: Text(
+                '${t.firstName} ${t.lastName}',
+                overflow: TextOverflow.ellipsis,
+              )
             )),
           ],
           onChanged: onChanged,
@@ -104,13 +112,20 @@ class _CycleDropdown extends ConsumerWidget {
         final centerCycles = cycles.where((c) => c.centerId == centerId).toList();
         return DropdownButtonFormField<int>(
           value: selectedId,
+          isExpanded: true,
           decoration: const InputDecoration(
             labelText: 'Ciclo Formativo',
             prefixIcon: Icon(Icons.history_edu),
           ),
           items: [
-            const DropdownMenuItem<int>(value: null, child: Text('Sin ciclo asignado')),
-            ...centerCycles.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
+            const DropdownMenuItem<int>(
+              value: null, 
+              child: Text('Sin ciclo asignado', overflow: TextOverflow.ellipsis)
+            ),
+            ...centerCycles.map((c) => DropdownMenuItem(
+              value: c.id, 
+              child: Text(c.name, overflow: TextOverflow.ellipsis)
+            )),
           ],
           onChanged: onChanged,
         );

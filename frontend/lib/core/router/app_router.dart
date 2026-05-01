@@ -14,6 +14,10 @@ import 'package:frontend/features/admin/presentation/centers/center_form_page.da
 import 'package:frontend/features/admin/presentation/users/teachers_screen.dart';
 import 'package:frontend/features/admin/presentation/users/students_screen.dart';
 import 'package:frontend/features/admin/presentation/users/user_form_page.dart';
+import 'package:frontend/features/admin/presentation/cycles/cycles_list_page.dart';
+import 'package:frontend/features/admin/presentation/cycles/cycle_form_page.dart';
+import 'package:frontend/features/admin/presentation/subjects/subjects_list_page.dart';
+import 'package:frontend/features/admin/presentation/subjects/subject_form_page.dart';
 import 'package:frontend/features/profile/presentation/profile_screen.dart';
 import 'package:frontend/features/dashboard/presentation/main_shell.dart';
 
@@ -121,6 +125,26 @@ final routerProvider = Provider<GoRouter>((ref) {
               final roleId = int.tryParse(state.uri.queryParameters['role'] ?? '2') ?? 2;
               return UserFormPage(roleId: roleId);
             },
+          ),
+          GoRoute(
+            path: '/admin/cycles',
+            builder: (context, state) => const AdminCyclesListPage(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const CycleFormPage(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/admin/subjects',
+            builder: (context, state) => const AdminSubjectsListPage(),
+            routes: [
+              GoRoute(
+                path: 'new',
+                builder: (context, state) => const SubjectFormPage(),
+              ),
+            ],
           ),
         ],
       ),

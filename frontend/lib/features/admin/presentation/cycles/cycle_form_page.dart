@@ -158,13 +158,17 @@ class _CenterDropdown extends ConsumerWidget {
     return centersAsync.when(
       data: (centers) => DropdownButtonFormField<int>(
         value: selectedId,
+        isExpanded: true,
         decoration: const InputDecoration(
           labelText: 'Centro',
           prefixIcon: Icon(Icons.business),
         ),
         items: centers.map((c) => DropdownMenuItem(
           value: c.id, 
-          child: Text(c.name)
+          child: Text(
+            c.name,
+            overflow: TextOverflow.ellipsis,
+          )
         )).toList(),
         onChanged: onChanged,
         validator: (v) => v == null ? 'Por favor, selecciona un centro' : null,

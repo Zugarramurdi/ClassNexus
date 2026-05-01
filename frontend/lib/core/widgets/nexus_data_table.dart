@@ -82,37 +82,80 @@ class _NexusDataTableState extends State<NexusDataTable> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: NexusCard(
                   onTap: widget.onTap != null ? () => widget.onTap!(row) : null,
-                  child: Row(
-                    children: [
-                      ...widget.columns.map((col) {
-                        return Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                col.toUpperCase(),
-                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isMobile = constraints.maxWidth < 450;
+                      
+                      if (isMobile) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: _buildDataField(context, widget.columns[0], row[widget.columns[0]]),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                row[col]?.toString() ?? '-',
-                                style: const TextStyle(fontWeight: FontWeight.w500),
+                                if (widget.actionsBuilder != null)
+                                  widget.actionsBuilder!(row),
+                              ],
+                            ),
+                            if (widget.columns.length > 1) ...[
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 24,
+                                runSpacing: 12,
+                                children: widget.columns.skip(1).map((col) {
+                                  return SizedBox(
+                                    width: (constraints.maxWidth - 48) / 2,
+                                    child: _buildDataField(context, col, row[col]),
+                                  );
+                                }).toList(),
                               ),
                             ],
-                          ),
+                          ],
                         );
-                      }).toList(),
-                      if (widget.actionsBuilder != null)
-                        widget.actionsBuilder!(row),
-                    ],
+                      }
+
+                      return Row(
+                        children: [
+                          ...widget.columns.map((col) {
+                            return Expanded(
+                              child: _buildDataField(context, col, row[col]),
+                            );
+                          }).toList(),
+                          if (widget.actionsBuilder != null)
+                            widget.actionsBuilder!(row),
+                        ],
+                      );
+                    },
                   ),
                 ),
               );
             },
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDataField(BuildContext context, String col, dynamic value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          col.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value?.toString() ?? '-',
+          style: const TextStyle(fontWeight: FontWeight.w500),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

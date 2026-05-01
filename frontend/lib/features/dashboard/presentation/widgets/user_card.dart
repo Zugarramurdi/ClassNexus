@@ -38,7 +38,12 @@ class UserCard extends ConsumerWidget {
             ],
           ),
           child: InkWell(
-            onTap: () => context.push('/profile'),
+            onTap: () {
+              context.push('/profile');
+              if (Scaffold.maybeOf(context)?.hasDrawer ?? false) {
+                Navigator.of(context).pop();
+              }
+            },
             borderRadius: BorderRadius.circular(12),
             child: Row(
               children: [
@@ -82,6 +87,8 @@ class UserCard extends ConsumerWidget {
                           color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           fontSize: 12,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
